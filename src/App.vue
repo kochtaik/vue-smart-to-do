@@ -1,10 +1,16 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
-  <router-view />
+  <the-calendar></the-calendar>
 </template>
+
+<script>
+import TheCalendar from "./components/TheCalendar.vue";
+
+export default {
+  components: {
+    TheCalendar,
+  },
+};
+</script>
 
 <style>
 #app {
