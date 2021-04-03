@@ -1,15 +1,10 @@
 import firebase from "firebase";
+import router from "../../router";
 
 const authModule = {
   namespaced: true,
-  state: {
-    isSignedIn: false,
-  },
-  mutations: {
-    setAuthenticationStatus(state, isSignedIn) {
-      state.isSignedIn = isSignedIn;
-    },
-  },
+  state: {},
+  mutations: {},
   actions: {
     async signUp(context, signupData) {
       const { email, password } = signupData;
@@ -17,25 +12,22 @@ const authModule = {
         const userCredential = await firebase
           .auth()
           .createUserWithEmailAndPassword(email, password);
-        console.log(userCredential);
         console.log(
           "You have been successfully logged in!. User data:",
           userCredential.user
         );
-        return userCredential.user;
+        router.push("/");
       } catch (error) {
         console.error(error.code, error.message);
-        return null;
       }
     },
     async signIn(context, signinData) {
       const { email, password } = signinData;
       try {
         await firebase.auth().signInWithEmailAndPassword(email, password);
-        return true;
+        router.push("/");
       } catch (error) {
-        console.error("Error while signing in in:", error.message);
-        return false;
+        console.error("Error while signing in:", error.message);
       }
     },
   },

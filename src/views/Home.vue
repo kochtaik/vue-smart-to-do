@@ -1,14 +1,14 @@
 <template>
   <the-calendar />
-  <tasks-list />
+  <!-- <tasks-list /> -->
 </template>
 
 <script>
-import TasksList from "../components/Tasks/TasksList.vue";
+// import TasksList from "../components/Tasks/TasksList.vue";
 import TheCalendar from "../components/TheCalendar.vue";
 export default {
   components: {
-    TasksList,
+    // TasksList,
     TheCalendar,
   },
 };

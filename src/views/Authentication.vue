@@ -51,13 +51,10 @@ export default {
     async signUp() {
       const { email, password } = this;
       try {
-        const isUserCreated = await this.$store.dispatch("authModule/signUp", {
+        await this.$store.dispatch("authModule/signUp", {
           email,
           password,
         });
-        if (isUserCreated) {
-          await this.$router.push("/");
-        }
       } catch (err) {
         console.err(err.message);
       }
@@ -65,13 +62,7 @@ export default {
     async signIn() {
       const { email, password } = this;
       try {
-        const authenticationStatus = await this.$store.dispatch(
-          "authModule/signIn",
-          { email, password }
-        );
-        if (authenticationStatus) {
-          this.$router.push("/");
-        }
+        await this.$store.dispatch("authModule/signIn", { email, password });
       } catch (err) {
         console.log(err);
       }
