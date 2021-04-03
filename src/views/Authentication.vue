@@ -85,20 +85,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/colors.scss";
+
 .auth {
   width: 90%;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
   .form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5em;
+
     &__submit {
       grid-area: 4 / span 2;
+      background: $base-blue;
+      color: $dark-contrast;
     }
   }
+
   &__change-action {
     display: flex;
     flex-direction: column;

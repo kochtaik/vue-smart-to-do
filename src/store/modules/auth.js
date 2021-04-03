@@ -30,6 +30,20 @@ const authModule = {
         console.error("Error while signing in:", error.message);
       }
     },
+    async signOut() {
+      try {
+        await firebase.auth().signOut();
+        console.log("User has been signed out");
+      } catch (error) {
+        console.log("Cannot sign user out:", error.message);
+      }
+      router.push("/sign-in");
+    },
+  },
+  getters: {
+    isUserSignedIn() {
+      return firebase.auth().currentUser;
+    },
   },
 };
 

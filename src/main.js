@@ -7,7 +7,7 @@ import store from "./store";
 // global components
 import BaseButton from "./components/UI/BaseButton.vue";
 
-const app = createApp(App)
+const app = createApp(App);
 
 import firebase from "firebase";
 import { firebaseConfig } from "./firebaseConfig.js";

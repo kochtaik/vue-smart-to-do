@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import firebase from "firebase";
+import store from "../store";
 import Home from "../views/Home.vue";
 // import AddTask from "../components/Tasks/AddTask.vue";
 import Authentication from "../views/Authentication.vue";
@@ -41,9 +41,11 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isPublic = to.matched.some((record) => record.meta.isPublic);
-  const isSignedIn = firebase.auth().currentUser;
-  const forNotLoggedInUsers = to.matched.some((record) => record.meta.forNotLoggedInUsers);
-  // console.log('is public:', isPublic, 'is signed in:', isSignedIn);
+  const isSignedIn = store.getters['authModule/isUserSignedIn'];
+  const forNotLoggedInUsers = to.matched.some(
+    (record) => record.meta.forNotLoggedInUsers
+  );
+  console.log('is public:', isPublic, 'is signed in:', isSignedIn);
   // console.log('for not logged in users', forNotLoggedInUsers);
   if (!isPublic && !isSignedIn) {
     return next("/sign-in");
