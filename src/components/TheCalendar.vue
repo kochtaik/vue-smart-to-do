@@ -1,26 +1,24 @@
 <template>
   <section class="calendar">
     <h1>{{ monthName }} {{ year }}</h1>
-    <section class="calendar__heading">
-      <div>Mon</div>
-      <div>Tue</div>
-      <div>Wed</div>
-      <div>Thu</div>
-      <div>Fri</div>
-      <div>Sat</div>
-      <div>Sun</div>
-    </section>
-    <section class="calendar__body">
+    <section
+      class="calendar__body"
+      @scroll="simulateInfiniteScroll()"
+      ref="calendar"
+    >
       <!-- the first loop renders "empy" cells -->
-      <div v-for="cell in firstWeekdayOfMonth" :key="cell"></div>
+      <!-- <div v-for="cell in firstWeekdayOfMonth" :key="cell"></div> -->
       <div
         v-for="(day, idx) in daysInMonth"
         :key="idx"
         @click="selectDay(day)"
-        class="day"
+        class="calendar__body__day day"
         :class="{ 'day--active': selectedDay === day }"
+        :ref="day.toDateString()"
       >
-        {{ day }}
+        <span class="day__monthday">{{ day.getDate() }}</span>
+        <!-- Place weekdays computations into a separate comp. property -->
+        <span class="day__weekday">{{ weekdays[day.getDay()] }}</span>
       </div>
     </section>
     <nav class="calendar__navigation navigation">
@@ -36,6 +34,7 @@
           </option>
         </select>
         <select name="year" id="year" v-model="year">
+          <!-- remove 2000 magic number -->
           <option
             v-for="(year, idx) in availableYears"
             :key="idx"
@@ -49,15 +48,130 @@
   </section>
 </template>
 
+<script>
+export default {
+  data() {
+    return {
+      // is it OK to store static data like here?
+      monthsList: [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ],
+      weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      availableYears: 100,
+      month: new Date().getMonth(),
+      year: new Date().getFullYear(),
+      selectedDay: null,
+    };
+  },
+  computed: {
+    monthName() {
+      return this.monthsList[this.month];
+    },
+    daysInMonth() {
+      const { month, year } = this;
+      const date = new Date(year, month, 1);
+      const days = [];
+      while (date.getMonth() === month) {
+        days.push(new Date(date));
+        date.setDate(date.getDate() + 1);
+      }
+      return days;
+    },
+  },
+  methods: {
+    showNextMonth() {
+      this.year = this.month === 11 ? this.year + 1 : this.year;
+      this.month = (this.month + 1) % 12;
+      this.selectedDay = null;
+    },
+    showPreviousMonth() {
+      this.year = this.month === 0 ? this.year - 1 : this.year;
+      this.month = this.month === 0 ? 11 : this.month - 1;
+      this.selectedDay = null;
+    },
+    selectDay(selected) {
+      this.selectedDay = selected;
+      // const selectedElement = this.$refs[selected.toDateString()];
+      // console.log(selectedElement);
+      // selectedElement.scrollIntoView({ inline: 'nearest', block: 'nearest'});
+      this.$emit("select-day", selected);
+    },
+    simulateInfiniteScroll() {
+      const { calendar } = this.$refs;
+      const scrollBoundary = this.detectScrollBoundary();
+      if (scrollBoundary === "scrollEnd") {
+        this.showNextMonth();
+        this.scrollCalendarBy(0);
+      }
+      if (scrollBoundary === "scrollStart") {
+        this.showPreviousMonth();
+        this.scrollCalendarBy(calendar.scrollWidth);
+      }
+    },
+
+    detectScrollBoundary() {
+      const { calendar } = this.$refs;
+      // console.log('offsetWidth', calendar.offsetWidth, 'scrollLeft', calendar.scrollLeft, 'scrollWidth', calendar.scrollWidth)
+      if (calendar.offsetWidth + calendar.scrollLeft >= calendar.scrollWidth) {
+        return "scrollEnd";
+      }
+
+      if (calendar.scrollLeft === 0) {
+        return "scrollStart";
+      }
+    },
+
+    scrollCalendarBy(value) {
+      const { calendar } = this.$refs;
+      calendar.scrollLeft = value;
+    },
+  },
+  mounted() {
+    // this serves to the possibility
+    // of initially scrolling calendar left
+    // and rendering previous month.
+    this.scrollCalendarBy(1);
+  },
+};
+</script>
+
 <style lang="scss" scoped>
 .calendar {
-  max-width: 50%;
-  &__heading,
+  max-width: 90%;
+
   &__body {
     display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-auto-flow: column;
+    grid-template-rows: repeat(1, minmax(0, 1fr));
     gap: 0.5em;
+    overflow-x: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
     .day {
+      width: 100px;
+      height: 100px;
+      font-size: 1.4em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
       cursor: pointer;
       &--active {
         background: #4198d4;
@@ -78,62 +192,3 @@
   }
 }
 </style>
-
-<script>
-// сделать ивент эмиттер, передающий данные о дне в родительский компонент;
-export default {
-  data() {
-    return {
-      // is it OK to store static data like here?
-      monthsList: [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ],
-      availableYears: 100,
-      month: new Date().getMonth(),
-      year: new Date().getFullYear(),
-      selectedDay: null,
-    };
-  },
-  computed: {
-    monthName() {
-      return this.monthsList[this.month];
-    },
-    daysInMonth() {
-      return new Date(this.year, this.month + 1, 0).getDate();
-    },
-    firstWeekdayOfMonth() {
-      const weekday = new Date(this.year, this.month, 1).getDay();
-      return weekday === 0 ? 7 - 1 : weekday - 1;
-    },
-  },
-  methods: {
-    showNextMonth() {
-      this.year = this.month === 11 ? this.year + 1 : this.year;
-      this.month = (this.month + 1) % 12;
-      this.selectedDay = null;
-    },
-    showPreviousMonth() {
-      this.year = this.month === 0 ? this.year - 1 : this.year;
-      this.month = this.month === 0 ? 11 : this.month - 1;
-      this.selectedDay = null;
-    },
-    selectDay(selected) {
-      this.selectedDay = selected;
-      const dateObj = new Date(this.year, this.month, selected);
-      this.$emit("select-day", dateObj);
-      console.log(dateObj);
-    },
-  },
-};
-</script>
