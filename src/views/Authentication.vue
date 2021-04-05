@@ -74,9 +74,6 @@ export default {
     },
   },
   computed: {
-    isSignedIn() {
-      return this.$store.state.authModule.isSignedIn;
-    },
     pageDestination() {
       return this.$route.meta.pageDestination;
     },
