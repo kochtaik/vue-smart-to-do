@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
-// import firebase from "firebase";
 import store from "../store";
 import Home from "../views/Home.vue";
-// import AddTask from "../components/Tasks/AddTask.vue";
+import AddTask from "../components/Tasks/AddTask.vue";
 import Authentication from "../views/Authentication.vue";
 
 const routes = [
@@ -29,10 +28,10 @@ const routes = [
       forNotLoggedInUsers: true,
     },
   },
-  // {
-  //   path: "/add",
-  //   component: AddTask,
-  // },
+  {
+    path: "/add",
+    component: AddTask,
+  },
 ];
 
 const router = createRouter({

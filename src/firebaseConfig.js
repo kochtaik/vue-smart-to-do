@@ -1,6 +1,7 @@
 export const firebaseConfig = {
   apiKey: "AIzaSyA1mozzKUtfhOuiRqwYxlwrc6UqnIkbT_4",
   authDomain: "vue-to-do-app-41eb3.firebaseapp.com",
+  databaseURL: "https://vue-to-do-app-41eb3-default-rtdb.firebaseio.com",
   projectId: "vue-to-do-app-41eb3",
   storageBucket: "vue-to-do-app-41eb3.appspot.com",
   messagingSenderId: "571112197018",

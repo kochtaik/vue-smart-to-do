@@ -14,7 +14,6 @@
         @click="selectDay(day)"
         class="calendar__body__day day"
         :class="{ 'day--active': selectedDay === day }"
-        :ref="day.toDateString()"
       >
         <span class="day__monthday">{{ day.getDate() }}</span>
         <!-- Place weekdays computations into a separate comp. property -->
@@ -83,6 +82,7 @@ export default {
       const date = new Date(year, month, 1);
       const days = [];
       while (date.getMonth() === month) {
+        // console.log(new Date(date))
         days.push(new Date(date));
         date.setDate(date.getDate() + 1);
       }
@@ -105,6 +105,7 @@ export default {
       // const selectedElement = this.$refs[selected.toDateString()];
       // console.log(selectedElement);
       // selectedElement.scrollIntoView({ inline: 'nearest', block: 'nearest'});
+      console.log(selected)
       this.$emit("select-day", selected);
     },
     simulateInfiniteScroll() {
@@ -112,7 +113,7 @@ export default {
       const scrollBoundary = this.detectScrollBoundary();
       if (scrollBoundary === "scrollEnd") {
         this.showNextMonth();
-        this.scrollCalendarBy(0);
+        this.scrollCalendarBy(1);
       }
       if (scrollBoundary === "scrollStart") {
         this.showPreviousMonth();

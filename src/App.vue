@@ -9,8 +9,9 @@ export default {
   components: {
     TheHeader,
   },
-  created() {
-    this.$store.dispatch("authModule/fetchUser");
+  async created() {
+    await this.$store.dispatch("authModule/fetchUser");
+    await this.$store.dispatch("tasksModule/fetchUserTasks");
   },
 };
 </script>
