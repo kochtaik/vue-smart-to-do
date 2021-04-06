@@ -1,4 +1,5 @@
 import firebase from "firebase";
+import router from "../../router";
 import { destructureDate } from "../../utils/DateParser";
 
 const tasksModule = {
@@ -23,6 +24,7 @@ const tasksModule = {
           .database()
           .ref(`users/${user.uid}/${year}/${month}/${day}`);
         await usersRef.push(info);
+        await router.push("/");
       } catch (error) {
         console.error(error.message);
       }

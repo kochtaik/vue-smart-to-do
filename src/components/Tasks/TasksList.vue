@@ -1,19 +1,34 @@
 <template>
   <section class="tasks">
     <template v-if="tasksNumber">
-      <h2 class="tasks__number">{{ tasksNumber }} task(-s) for this day</h2>
+      <div class="tasks__heading">
+        <h2 class="tasks__heading__number">
+          {{ tasksNumber }} task(-s) for this day
+        </h2>
+        <base-button class="tasks__heading__new-task">
+          <router-link to="/add">New task</router-link>
+        </base-button>
+      </div>
       <ul class="tasks__task-list task-list">
         <li
           class="task-list__item"
           v-for="(info, id, idx) in tasksByDay"
           :key="id"
         >
-          <label :for="id">{{ info.taskContent }}</label>
+          <label
+            :for="id"
+            class="task-list__item__label"
+            :class="{ 'task-list__item__label--done': info.completed }"
+          >
+            {{ info.taskContent }}
+          </label>
           <input
+            class="task-list__item__checkbox"
             type="checkbox"
             name=""
             :id="idx"
             :value="createJSONString({ id, info })"
+            :checked="info.completed"
             @change="changeTaskStatus($event.target.value)"
           />
         </li>
@@ -22,9 +37,6 @@
     <template v-else>
       <h1>No tasks for this day</h1>
     </template>
-    <base-button class="tasks__new-task">
-      <router-link to="/add">New task</router-link>
-    </base-button>
   </section>
 </template>
 
@@ -64,10 +76,57 @@ export default {
       return JSON.stringify(taskObj);
     },
   },
-  // watch: {
-  //   completedTasks(tasks) {
-  //     this.changeTaskStatus(tasks);
-  //   },
-  // },
 };
 </script>
+
+<style lang="scss" scoped>
+@import "../../assets/colors";
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  &__heading {
+    display: flex;
+    align-items: center;
+
+    &__new-task {
+      padding: 0.5em;
+      margin-left: 0.5em;
+      background: $base-blue;
+      height: 2em;
+
+      & > a {
+        color: $dark-contrast;
+        text-decoration: none;
+      }
+    }
+  }
+  .task-list {
+    list-style: none;
+    margin-top: 0;
+
+    &__item {
+      font-size: 1.2em;
+      padding: 0.5em;
+      border-bottom: 1px solid $base-gray;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      &__checkbox {
+        cursor: pointer;
+        transform: scale(3);
+        margin-right: 1.3em;
+      }
+      &__label--done {
+        text-decoration: line-through;
+      }
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .task-list {
+    width: 75%;
+  }
+}
+</style>

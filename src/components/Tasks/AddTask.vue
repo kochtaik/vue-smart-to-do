@@ -1,15 +1,14 @@
 <template>
   <section class="add-task">
     <h1 class="add-task__heading">Add new task</h1>
-    <div
-      class="add-task__content"
-      contenteditable="true"
-      @focus="clearTaskContent"
-      @blur="setDefaultPlaceholder"
-      @input="setInput($event.target.textContent)"
-    >
-      {{ taskContent }}
-    </div>
+    <input
+      class="add-task__input"
+      type="text"
+      name=""
+      id=""
+      placeholder="Enter your task..."
+      v-model="taskContent"
+    />
     <base-button class="add-task__button" @click="prepareDataBeforeSending">
       Add task
     </base-button>
@@ -20,7 +19,7 @@
 export default {
   data() {
     return {
-      taskContent: "What are you planing?",
+      taskContent: "",
     };
   },
   methods: {
@@ -29,15 +28,8 @@ export default {
         this.taskContent = "";
       }
     },
-    setDefaultPlaceholder() {
-      if (this.taskContent === "") {
-        this.taskContent = "What are you planing?";
-      }
-    },
-    setInput(inputValue) {
-      this.taskContent = inputValue;
-    },
-    prepareDataBeforeSending() {
+    async prepareDataBeforeSending() {
+      if (this.taskContent === "") return;
       const user = this.$store.state.authModule.currentUser;
       const taskRecord = {
         user,
@@ -47,7 +39,7 @@ export default {
           completed: false,
         },
       };
-      this.$store.dispatch("tasksModule/putTaskToServer", taskRecord);
+      await this.$store.dispatch("tasksModule/putTaskToServer", taskRecord);
     },
   },
 };
@@ -57,10 +49,21 @@ export default {
 @import "../../assets/colors";
 
 .add-task {
-  &__content {
-    height: 30vh;
-    width: 50%;
-    margin: 0.5em 0;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0 auto;
+  padding: 0.3em;
+  width: 75%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid $base-gray;
+  border-radius: 7px;
+  &__input {
+    height: 1.5em;
+    margin: 0.8em 0;
   }
   &__button {
     background: $base-blue;

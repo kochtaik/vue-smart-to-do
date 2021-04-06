@@ -23,7 +23,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 0.5em;
-  background: $header;
+  background: $base-gray;
 
   &__app-name {
     font-weight: 700;
