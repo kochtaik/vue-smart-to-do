@@ -3,11 +3,22 @@
     <h1 class="auth__title">{{ pageDestination }}</h1>
     <form @submit.prevent="defineAction" class="auth__form form">
       <label for="email">Email</label>
-      <input reqiured type="email" id="email" v-model="email" />
+      <input
+        class="form__email-field"
+        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,}$"
+        title="Email must be of the form username@domain.com"
+        reqiured
+        type="email"
+        id="email"
+        v-model.trim="email"
+      />
       <label for="password">Password</label>
       <input
-        ref="pass"
+        class="form__password-field"
+        pattern="(?=.*d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+        title="Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
         reqiured
+        ref="pass"
         type="password"
         id="password"
         v-model="password"
@@ -44,9 +55,7 @@ export default {
   },
   methods: {
     defineAction() {
-      if (this.pageDestination === "Sign in") {
-        this.signIn();
-      } else this.signUp();
+      return this.pageDestination === "Sign in" ? this.signIn() : this.signUp();
     },
     async signUp() {
       const { email, password } = this;
@@ -95,6 +104,11 @@ export default {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5em;
+
+    &__email-field:invalid,
+    &__password-field:invalid {
+      border: 1px solid $red-alert;
+    }
 
     &__submit {
       grid-area: 4 / span 2;
