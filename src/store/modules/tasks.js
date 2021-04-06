@@ -16,6 +16,8 @@ const tasksModule = {
       const { user, info } = taskRecord;
       console.log(taskRecord);
       const { year, month, day } = destructureDate(info.creationDate);
+
+      info.creationDate = info.creationDate.toDateString();
       try {
         const usersRef = await firebase
           .database()
@@ -26,11 +28,9 @@ const tasksModule = {
       }
     },
     async fetchUserTasks(context) {
-      const user = context.rootState.authModule.currentUser;
-      console.log("user", context.rootState.authModule.currentUser);
       try {
-        // TODO: handel users without any records;
-        const userRef = await firebase.database().ref(`users/${user.uid}`);
+        // TODO: handle users without any records;
+        const userRef = await context.dispatch("getUserRef");
         await userRef.on("value", (snapshot) => {
           const userTasks = snapshot.val();
           context.commit("setUserTasks", userTasks);
@@ -41,6 +41,25 @@ const tasksModule = {
         });
       } catch (error) {
         console.error("Error while fetching data:", error.message);
+      }
+    },
+
+    async getUserRef(context) {
+      const user = context.rootState.authModule.currentUser;
+      return await firebase.database().ref(`users/${user.uid}`);
+    },
+
+    async updateTask(context, taskRecord) {
+      const { id, info } = taskRecord;
+      const { year, month, day } = destructureDate(info.creationDate);
+      try {
+        const userRef = await context.dispatch("getUserRef");
+        await userRef
+          .child(`${year}/${month}/${day}/${id}`)
+          .update({ completed: info.completed });
+        console.log(`task ${id} updated`);
+      } catch (error) {
+        console.error("Updating task error:", error.message);
       }
     },
   },

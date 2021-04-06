@@ -5,17 +5,26 @@
       <ul class="tasks__task-list task-list">
         <li
           class="task-list__item"
-          v-for="(task, idx) in tasksByDay"
-          :key="idx"
+          v-for="(info, id, idx) in tasksByDay"
+          :key="id"
         >
-          {{ task.taskContent }}
+          <label :for="id">{{ info.taskContent }}</label>
+          <input
+            type="checkbox"
+            name=""
+            :id="idx"
+            :value="createJSONString({ id, info })"
+            @change="changeTaskStatus($event.target.value)"
+          />
         </li>
       </ul>
     </template>
     <template v-else>
       <h1>No tasks for this day</h1>
     </template>
-    <router-link to="/add">New task</router-link>
+    <base-button class="tasks__new-task">
+      <router-link to="/add">New task</router-link>
+    </base-button>
   </section>
 </template>
 
@@ -31,6 +40,7 @@ export default {
   },
   computed: {
     tasksList() {
+      console.log(this.$store.state.tasksModule.userTasks);
       return this.$store.state.tasksModule.userTasks;
     },
     tasksByDay() {
@@ -44,5 +54,20 @@ export default {
       return Object.keys(this.tasksByDay).length;
     },
   },
+  methods: {
+    changeTaskStatus(task) {
+      const taskObject = JSON.parse(task);
+      taskObject.info.completed = !taskObject.info.completed;
+      this.$store.dispatch("tasksModule/updateTask", taskObject);
+    },
+    createJSONString(taskObj) {
+      return JSON.stringify(taskObj);
+    },
+  },
+  // watch: {
+  //   completedTasks(tasks) {
+  //     this.changeTaskStatus(tasks);
+  //   },
+  // },
 };
 </script>

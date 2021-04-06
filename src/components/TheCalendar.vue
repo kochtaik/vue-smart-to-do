@@ -105,7 +105,7 @@ export default {
       // const selectedElement = this.$refs[selected.toDateString()];
       // console.log(selectedElement);
       // selectedElement.scrollIntoView({ inline: 'nearest', block: 'nearest'});
-      console.log(selected)
+      console.log(selected);
       this.$emit("select-day", selected);
     },
     simulateInfiniteScroll() {
