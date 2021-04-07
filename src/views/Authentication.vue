@@ -65,7 +65,10 @@ export default {
           password,
         });
       } catch (err) {
-        console.err(err.message);
+        console.error(err.message);
+        this.$toast.error(
+          "Something went wrong. Please, check your internet connection and retry"
+        );
       }
     },
     async signIn() {
@@ -73,7 +76,8 @@ export default {
       try {
         await this.$store.dispatch("authModule/signIn", { email, password });
       } catch (err) {
-        console.log(err);
+        console.error(err.message);
+        this.$toast.error("This user doesn't exist");
       }
     },
     togglePassVisibility() {

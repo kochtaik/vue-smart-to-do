@@ -39,7 +39,11 @@ export default {
           completed: false,
         },
       };
-      await this.$store.dispatch("tasksModule/putTaskToServer", taskRecord);
+      try {
+        await this.$store.dispatch("tasksModule/putTaskToServer", taskRecord);
+      } catch (err) {
+        console.log(err);
+      }
     },
   },
 };

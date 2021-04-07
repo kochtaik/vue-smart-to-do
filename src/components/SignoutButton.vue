@@ -17,7 +17,14 @@
 export default {
   methods: {
     async signOut() {
-      await this.$store.dispatch("authModule/signOut");
+      try {
+        await this.$store.dispatch("authModule/signOut");
+      } catch (error) {
+        console.error(error.message);
+        this.$toast.error(
+          "Something went wrong. Please, check your internet connection and retry"
+        );
+      }
     },
   },
   computed: {
