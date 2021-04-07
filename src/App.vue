@@ -9,10 +9,6 @@ export default {
   components: {
     TheHeader,
   },
-  async created() {
-    await this.$store.dispatch("authModule/fetchUser");
-    await this.$store.dispatch("tasksModule/fetchUserTasks");
-  },
 };
 </script>
 

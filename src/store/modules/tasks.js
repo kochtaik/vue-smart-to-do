@@ -15,7 +15,6 @@ const tasksModule = {
   actions: {
     async putTaskToServer(context, taskRecord) {
       const { user, info } = taskRecord;
-      console.log(taskRecord);
       const { year, month, day } = destructureDate(info.creationDate);
 
       info.creationDate = info.creationDate.toDateString();
@@ -31,7 +30,6 @@ const tasksModule = {
     },
     async fetchUserTasks(context) {
       try {
-        // TODO: handle users without any records;
         const userRef = await context.dispatch("getUserRef");
         await userRef.on("value", (snapshot) => {
           const userTasks = snapshot.val();
@@ -42,7 +40,7 @@ const tasksModule = {
           );
         });
       } catch (error) {
-        console.error("Error while fetching data:", error.message);
+        console.error("Error while fetching data:", error);
       }
     },
 

@@ -59,6 +59,10 @@ router.beforeEach(async (to, from, next) => {
   if (isSignedIn && forNotLoggedInUsers) {
     return next("/");
   }
+  if (!isPublic && isSignedIn) {
+    await store.dispatch("authModule/fetchUser");
+    await store.dispatch("tasksModule/fetchUserTasks");
+  }
   next();
 });
 
