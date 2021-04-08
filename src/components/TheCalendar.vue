@@ -1,13 +1,14 @@
 <template>
   <section class="calendar">
-    <h1>{{ monthName }} {{ year }}</h1>
+    <h2 class="calendar__year-month year-month" @click="toggleDatePicker(true)">
+      {{ monthName }}
+      {{ year }}
+    </h2>
     <section
       class="calendar__body"
       @scroll="simulateInfiniteScroll()"
       ref="calendar"
     >
-      <!-- the first loop renders "empy" cells -->
-      <!-- <div v-for="cell in firstWeekdayOfMonth" :key="cell"></div> -->
       <div
         v-for="(day, idx) in daysInMonth"
         :key="idx"
@@ -20,35 +21,22 @@
         <span class="day__weekday">{{ weekdays[day.getDay()] }}</span>
       </div>
     </section>
-    <nav class="calendar__navigation navigation">
-      <div class="navigation__buttons">
-        <button @click="showPreviousMonth">Prev</button>
-        <button @click="showNextMonth">Next</button>
-      </div>
-      <div class="navigation__jump-to">
-        <span>Jump to</span>
-        <select name="month" id="month" v-model="month">
-          <option v-for="(month, idx) in monthsList" :key="idx" :value="idx">
-            {{ month }}
-          </option>
-        </select>
-        <select name="year" id="year" v-model="year">
-          <!-- remove 2000 magic number -->
-          <option
-            v-for="(year, idx) in availableYears"
-            :key="idx"
-            :value="year + 2000"
-          >
-            {{ year + 2000 }}
-          </option>
-        </select>
-      </div>
-    </nav>
+    <date-picker
+      v-show="isDatePickerShown"
+      :monthsList="monthsList"
+      @date-select="setMonthAndYear"
+    ></date-picker>
+    <div class="calendar__overlay" v-show="isDatePickerShown"></div>
   </section>
 </template>
 
 <script>
+import DatePicker from "./UI/DatePicker.vue";
+
 export default {
+  components: {
+    DatePicker,
+  },
   data() {
     return {
       // is it OK to store static data like here?
@@ -71,6 +59,7 @@ export default {
       month: new Date().getMonth(),
       year: new Date().getFullYear(),
       selectedDay: null,
+      isDatePickerShown: false,
     };
   },
   computed: {
@@ -82,7 +71,6 @@ export default {
       const date = new Date(year, month, 1);
       const days = [];
       while (date.getMonth() === month) {
-        // console.log(new Date(date))
         days.push(new Date(date));
         date.setDate(date.getDate() + 1);
       }
@@ -95,19 +83,31 @@ export default {
       this.month = (this.month + 1) % 12;
       this.selectedDay = null;
     },
+
     showPreviousMonth() {
       this.year = this.month === 0 ? this.year - 1 : this.year;
       this.month = this.month === 0 ? 11 : this.month - 1;
       this.selectedDay = null;
     },
+
     selectDay(selected) {
       this.selectedDay = selected;
-      // const selectedElement = this.$refs[selected.toDateString()];
-      // console.log(selectedElement);
-      // selectedElement.scrollIntoView({ inline: 'nearest', block: 'nearest'});
-      console.log(selected);
       this.$emit("select-day", selected);
     },
+
+    toggleDatePicker(isShown) {
+      this.isDatePickerShown = isShown;
+    },
+
+    setMonthAndYear(date) {
+      const { month, year } = date;
+      this.month = month;
+      this.year = year;
+      this.toggleDatePicker(false);
+    },
+
+    // TODO: place scroll functions into a separate module
+
     simulateInfiniteScroll() {
       const { calendar } = this.$refs;
       const scrollBoundary = this.detectScrollBoundary();
@@ -148,8 +148,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/colors.scss";
+
 .calendar {
-  max-width: 90%;
+  max-width: 95%;
+
+  &__year-month {
+    font-size: 1.5em;
+    font-weight: 700;
+  }
 
   &__body {
     display: grid;
@@ -179,6 +186,17 @@ export default {
       }
     }
   }
+
+  &__overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 20;
+    background: $base-blue;
+  }
+
   .navigation {
     margin: 1em 0;
     &__buttons {
