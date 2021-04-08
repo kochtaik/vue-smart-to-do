@@ -6,7 +6,7 @@
     </h2>
     <section
       class="calendar__body"
-      @scroll="simulateInfiniteScroll()"
+      @scroll="startScroll"
       ref="calendar"
     >
       <div
@@ -14,10 +14,10 @@
         :key="idx"
         @click="selectDay(day)"
         class="calendar__body__day day"
-        :class="{ 'day--active': selectedDay === day }"
+        :class="{ 'day--active': day.toDateString() === selectedDay }"
       >
         <span class="day__monthday">{{ day.getDate() }}</span>
-        <!-- Place weekdays computations into a separate comp. property -->
+        <!-- TODO: Place weekdays computations into a separate comp. property -->
         <span class="day__weekday">{{ weekdays[day.getDay()] }}</span>
       </div>
     </section>
@@ -32,6 +32,7 @@
 
 <script>
 import DatePicker from "./UI/DatePicker.vue";
+import { Scroll } from "../utils/Scroll";
 
 export default {
   components: {
@@ -55,17 +56,18 @@ export default {
         "December",
       ],
       weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-      availableYears: 100,
       month: new Date().getMonth(),
       year: new Date().getFullYear(),
-      selectedDay: null,
+      selectedDay: new Date().toDateString(),
       isDatePickerShown: false,
+      scrollInstance: null,
     };
   },
   computed: {
     monthName() {
       return this.monthsList[this.month];
     },
+
     daysInMonth() {
       const { month, year } = this;
       const date = new Date(year, month, 1);
@@ -91,7 +93,7 @@ export default {
     },
 
     selectDay(selected) {
-      this.selectedDay = selected;
+      this.selectedDay = selected.toDateString();
       this.$emit("select-day", selected);
     },
 
@@ -106,43 +108,36 @@ export default {
       this.toggleDatePicker(false);
     },
 
-    // TODO: place scroll functions into a separate module
+    // TODO: place scroll functions into a separated module
+
+    startScroll() {
+      this.scrollInstance.isOngoing = true;
+      this.simulateInfiniteScroll();
+    },
 
     simulateInfiniteScroll() {
+      const { scrollInstance } = this;
       const { calendar } = this.$refs;
-      const scrollBoundary = this.detectScrollBoundary();
+      const scrollBoundary = scrollInstance.detectScrollBoundary();
+
       if (scrollBoundary === "scrollEnd") {
         this.showNextMonth();
-        this.scrollCalendarBy(1);
+        return scrollInstance.scrollBy(1);
       }
       if (scrollBoundary === "scrollStart") {
+        console.log(calendar.scrollWidth)
         this.showPreviousMonth();
-        this.scrollCalendarBy(calendar.scrollWidth);
+        return scrollInstance.scrollBy(calendar.scrollWidth);
       }
-    },
-
-    detectScrollBoundary() {
-      const { calendar } = this.$refs;
-      // console.log('offsetWidth', calendar.offsetWidth, 'scrollLeft', calendar.scrollLeft, 'scrollWidth', calendar.scrollWidth)
-      if (calendar.offsetWidth + calendar.scrollLeft >= calendar.scrollWidth) {
-        return "scrollEnd";
-      }
-
-      if (calendar.scrollLeft === 0) {
-        return "scrollStart";
-      }
-    },
-
-    scrollCalendarBy(value) {
-      const { calendar } = this.$refs;
-      calendar.scrollLeft = value;
     },
   },
   mounted() {
     // this serves to the possibility
     // of initially scrolling calendar left
     // and rendering previous month.
-    this.scrollCalendarBy(1);
+    const { calendar } = this.$refs;
+    this.scrollInstance = new Scroll(calendar);
+    this.scrollInstance.scrollBy(1);
   },
 };
 </script>
