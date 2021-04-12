@@ -14,10 +14,16 @@ export default {
 
 <style lang="scss">
 @import "./assets/colors.scss";
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+}
 
 body {
-  margin: 0;
-
   #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -28,16 +34,18 @@ body {
   button,
   input,
   select {
-    font-size: 22px;
+    font-size: 16px;
   }
 }
 
 @media (min-width: 768px) {
-  #app,
-  button,
-  input,
-  select {
-    font-size: 20px;
+  body {
+    #app,
+    button,
+    input,
+    select {
+      font-size: 22px;
+    }
   }
 }
 </style>

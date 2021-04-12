@@ -1,6 +1,6 @@
 <template>
   <section class="auth">
-    <h1 class="auth__title">{{ pageDestination }}</h1>
+    <h2 class="auth__title">{{ pageDestination }}</h2>
     <form @submit.prevent="defineAction" class="auth__form form">
       <label for="email">Email</label>
       <input
@@ -104,10 +104,16 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
 
+  &__title {
+    font-weight: 700;
+    font-size: 1.5em;
+  }
+
   .form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.5em;
+    gap: 1em;
+    margin: 0.7em 0;
 
     &__email-field:invalid,
     &__password-field:invalid {

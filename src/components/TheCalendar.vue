@@ -4,14 +4,12 @@
       {{ monthName }}
       {{ year }}
     </h2>
-    <section
-      class="calendar__body"
-      @scroll="startScroll"
-      ref="calendar"
-    >
+    <section class="calendar__body" ref="calendar">
+      <div class="calendar__body__shadow left-shadow"></div>
       <div
         v-for="(day, idx) in daysInMonth"
         :key="idx"
+        :ref="day.toDateString()"
         @click="selectDay(day)"
         class="calendar__body__day day"
         :class="{ 'day--active': day.toDateString() === selectedDay }"
@@ -20,7 +18,13 @@
         <!-- TODO: Place weekdays computations into a separate comp. property -->
         <span class="day__weekday">{{ weekdays[day.getDay()] }}</span>
       </div>
+      <div class="calendar__body__shadow right-shadow"></div>
     </section>
+    <nav class="calendar__navigation">
+      <base-button @click="showPreviousMonth">Previous month</base-button>
+      <base-button @click="showToday">Today</base-button>
+      <base-button @click="showNextMonth">Next month</base-button>
+    </nav>
     <date-picker
       v-show="isDatePickerShown"
       :monthsList="monthsList"
@@ -32,7 +36,6 @@
 
 <script>
 import DatePicker from "./UI/DatePicker.vue";
-import { Scroll } from "../utils/Scroll";
 
 export default {
   components: {
@@ -60,9 +63,9 @@ export default {
       year: new Date().getFullYear(),
       selectedDay: new Date().toDateString(),
       isDatePickerShown: false,
-      scrollInstance: null,
     };
   },
+
   computed: {
     monthName() {
       return this.monthsList[this.month];
@@ -92,6 +95,17 @@ export default {
       this.selectedDay = null;
     },
 
+    showToday() {
+      const today = new Date();
+      this.month = today.getMonth();
+      this.year = today.getFullYear();
+      this.$nextTick(() => {
+        const todayElem = this.$refs[today.toDateString()];
+        todayElem.scrollIntoView({ inline: "center" });
+        this.selectDay(today);
+      });
+    },
+
     selectDay(selected) {
       this.selectedDay = selected.toDateString();
       this.$emit("select-day", selected);
@@ -107,37 +121,9 @@ export default {
       this.year = year;
       this.toggleDatePicker(false);
     },
-
-    // TODO: place scroll functions into a separated module
-
-    startScroll() {
-      this.scrollInstance.isOngoing = true;
-      this.simulateInfiniteScroll();
-    },
-
-    simulateInfiniteScroll() {
-      const { scrollInstance } = this;
-      const { calendar } = this.$refs;
-      const scrollBoundary = scrollInstance.detectScrollBoundary();
-
-      if (scrollBoundary === "scrollEnd") {
-        this.showNextMonth();
-        return scrollInstance.scrollBy(1);
-      }
-      if (scrollBoundary === "scrollStart") {
-        console.log(calendar.scrollWidth)
-        this.showPreviousMonth();
-        return scrollInstance.scrollBy(calendar.scrollWidth);
-      }
-    },
   },
   mounted() {
-    // this serves to the possibility
-    // of initially scrolling calendar left
-    // and rendering previous month.
-    const { calendar } = this.$refs;
-    this.scrollInstance = new Scroll(calendar);
-    this.scrollInstance.scrollBy(1);
+    this.$nextTick(() => this.showToday());
   },
 };
 </script>
@@ -146,18 +132,23 @@ export default {
 @import "../assets/colors.scss";
 
 .calendar {
-  max-width: 95%;
+  width: 100%;
+  margin: 1em 0;
 
   &__year-month {
     font-size: 1.5em;
     font-weight: 700;
+    margin: 0.5em 0 1.3em 1em;
   }
 
   &__body {
+    position: relative;
     display: grid;
     grid-auto-flow: column;
     grid-template-rows: repeat(1, minmax(0, 1fr));
     gap: 0.5em;
+    margin: 1em 0;
+    padding: 0 0.5em;
     overflow-x: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -166,18 +157,47 @@ export default {
       display: none;
     }
 
+    &__shadow {
+      position: sticky;
+      width: 4.2em;
+      height: 4.2em;
+      pointer-events: none;
+    }
+
+    .right-shadow {
+      right: -5%;
+      background-image: linear-gradient(
+        to left,
+        white 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+    }
+
+    .left-shadow {
+      left: -5%;
+      background-image: linear-gradient(
+        to right,
+        white 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+    }
     .day {
-      width: 100px;
-      height: 100px;
-      font-size: 1.4em;
+      width: 4.2em;
+      height: 4.2em;
+
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      border-radius: 50%;
+      justify-content: space-around;
+
+      border: 1px solid $base-gray;
+      border-radius: 20%;
+      font-weight: 700;
+
       cursor: pointer;
       &--active {
-        background: #4198d4;
+        border: 1px solid $selection;
+        color: $selection;
       }
     }
   }
@@ -192,16 +212,14 @@ export default {
     background: $base-blue;
   }
 
-  .navigation {
-    margin: 1em 0;
-    &__buttons {
-      margin: 0.5em 0;
-      button {
-        margin: 0 0.5em;
-      }
-    }
-    &__jump-to > * {
-      margin: 0 0.5em;
+  &__navigation {
+    margin: 1.3em 0.5em;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    button {
+      background: $base-blue;
+      color: $dark-contrast;
     }
   }
 }

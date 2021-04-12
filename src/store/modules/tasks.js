@@ -16,17 +16,12 @@ const tasksModule = {
     async putTaskToServer(context, taskRecord) {
       const { user, info } = taskRecord;
       const { year, month, day } = destructureDate(info.creationDate);
-
       info.creationDate = info.creationDate.toDateString();
-      try {
-        const usersRef = await firebase
-          .database()
-          .ref(`users/${user.uid}/${year}/${month}/${day}`);
-        await usersRef.push(info);
-        await router.push("/");
-      } catch (error) {
-        console.error(error.message);
-      }
+      const usersRef = await firebase
+        .database()
+        .ref(`users/${user.uid}/${year}/${month}/${day}`);
+      await usersRef.push(info);
+      await router.push("/");
     },
     async fetchUserTasks(context) {
       try {

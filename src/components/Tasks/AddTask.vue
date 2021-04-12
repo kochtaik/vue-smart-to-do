@@ -9,7 +9,11 @@
       placeholder="Enter your task..."
       v-model="taskContent"
     />
-    <base-button class="add-task__button" @click="prepareDataBeforeSending">
+    <div class="add-task__date-picker">
+      <label for="date">Choose date</label>
+      <input v-model="chosenDate" type="date" id="date" />
+    </div>
+    <base-button class="add-task__button" @click="validateInput">
       Add task
     </base-button>
   </section>
@@ -20,6 +24,7 @@ export default {
   data() {
     return {
       taskContent: "",
+      chosenDate: "",
     };
   },
   methods: {
@@ -29,21 +34,36 @@ export default {
       }
     },
     async prepareDataBeforeSending() {
-      if (this.taskContent === "") return;
       const user = this.$store.state.authModule.currentUser;
       const taskRecord = {
         user,
         info: {
-          creationDate: new Date(),
+          creationDate: this.dateAsObject,
           taskContent: this.taskContent,
           completed: false,
         },
       };
       try {
         await this.$store.dispatch("tasksModule/putTaskToServer", taskRecord);
+        this.$toast.success(
+          `Task has been saved for ${this.dateAsObject.toDateString()}!`
+        );
       } catch (err) {
+        this.$toast.error("Something went wrong. Please, retry later");
         console.log(err);
       }
+    },
+    validateInput() {
+      if (this.taskContent === "") {
+        this.$toast.error("Empty task is not allowed! Please, enter something");
+        return;
+      }
+      this.prepareDataBeforeSending();
+    },
+  },
+  computed: {
+    dateAsObject() {
+      return this.chosenDate === "" ? new Date() : new Date(this.chosenDate);
     },
   },
 };
@@ -59,7 +79,7 @@ export default {
   transform: translate(-50%, -50%);
   margin: 0 auto;
   padding: 0.3em;
-  width: 75%;
+  width: 85%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -68,6 +88,11 @@ export default {
   &__input {
     height: 1.5em;
     margin: 0.8em 0;
+  }
+  &__date-picker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   &__button {
     background: $base-blue;

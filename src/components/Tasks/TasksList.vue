@@ -35,13 +35,19 @@
       </ul>
     </template>
     <template v-else>
-      <h1>No tasks for this day</h1>
+      <div class="tasks__heading">
+        <h2>No tasks for this day</h2>
+        <base-button class="tasks__heading__new-task">
+          <router-link to="/add">New task</router-link>
+        </base-button>
+      </div>
     </template>
   </section>
 </template>
 
 <script>
 import { destructureDate } from "../../utils/DateParser";
+// TODO: add spinner on data fetching and data changing
 
 export default {
   props: {
@@ -58,7 +64,7 @@ export default {
     tasksByDay() {
       const selectedDay = this.selectedDay;
       const { year, month, day } = destructureDate(selectedDay);
-      console.log(year, month, day);
+
       return this.tasksList?.[year]?.[month]?.[day]; // WTF
     },
     tasksNumber() {
@@ -88,6 +94,7 @@ export default {
   &__heading {
     display: flex;
     align-items: center;
+    margin: 0.5em 0 1.3em 1em;
 
     &__new-task {
       padding: 0.5em;
@@ -101,11 +108,19 @@ export default {
       }
     }
   }
+  h2 {
+    font-size: 1.2em;
+    font-weight: 700;
+  }
   .task-list {
     list-style: none;
     margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
     &__item {
+      width: 95%;
       font-size: 1.2em;
       padding: 0.5em;
       border-bottom: 1px solid $base-gray;
@@ -114,7 +129,7 @@ export default {
       align-items: center;
       &__checkbox {
         cursor: pointer;
-        transform: scale(3);
+        transform: scale(1.2);
         margin-right: 1.3em;
       }
       &__label--done {

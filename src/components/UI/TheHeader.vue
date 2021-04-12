@@ -27,7 +27,7 @@ export default {
 
   &__app-name {
     font-weight: 700;
-    margin: 0;
+    font-size: 2em;
   }
 }
 </style>
