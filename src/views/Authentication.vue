@@ -44,7 +44,10 @@
         <router-link to="/sign-up">Sign up</router-link>
       </p>
     </template>
-    <pulse-loader class="auth__loader" :loading="isAuthenticationPending"></pulse-loader>
+    <pulse-loader
+      class="auth__loader"
+      :loading="isAuthenticationPending"
+    ></pulse-loader>
   </section>
 </template>
 

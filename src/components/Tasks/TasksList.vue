@@ -12,7 +12,7 @@
       <ul class="tasks__task-list task-list">
         <li
           class="task-list__item"
-          v-for="(info, id, idx) in tasksByDay"
+          v-for="(info, id, idx) in tasksByDate"
           :key="id"
         >
           <label
@@ -49,8 +49,6 @@
 </template>
 
 <script>
-import { destructureDate } from "../../utils/DateParser";
-
 export default {
   props: {
     selectedDay: {
@@ -63,20 +61,26 @@ export default {
       return this.$store.getters["tasksModule/isTaskListEmpty"];
     },
     isTasksListLoading() {
-      return this.$store.getters["tasksModule/isTasksListLoading"];
+      return this.$store.state.tasksModule.isTasksListLoading;
     },
     tasksList() {
       return this.$store.state.tasksModule.userTasks;
     },
-    tasksByDay() {
+    tasksByDate() {
       const selectedDay = this.selectedDay;
-      const { year, month, day } = destructureDate(selectedDay);
 
-      return this.isTasksListEmpty ? {} : this.tasksList[year]?.[month]?.[day];
+      if (this.isTasksListEmpty) return {};
+
+      const filteredTasks = Object.entries(this.tasksList).filter(
+        ([, task]) => {
+          return selectedDay.toDateString() === task.creationDate;
+        }
+      );
+      return Object.fromEntries(filteredTasks);
     },
     tasksNumber() {
-      if (!this.tasksByDay) return;
-      return Object.keys(this.tasksByDay).length;
+      if (!this.tasksByDate) return;
+      return Object.keys(this.tasksByDate).length;
     },
   },
   methods: {
