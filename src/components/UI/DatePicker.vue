@@ -1,8 +1,7 @@
 <template>
-  <section class="date-picker">
+  <section class="date-picker" tabindex="0">
     <div class="date-picker__grid-containers grid-containers">
       <div class="grid-container months">
-        <!-- TODO: reduce code repetition -->
         <div
           class="grid-container__cell"
           :class="{ 'grid-container__cell--active': date.month === monthIdx }"
@@ -82,6 +81,7 @@ export default {
 .date-picker {
   width: 95%;
   position: fixed;
+  top: 25%;
   left: 50%;
   z-index: 30;
   transform: translateX(-50%);
@@ -93,17 +93,16 @@ export default {
 
   &__grid-containers {
     display: flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
     margin-bottom: 1em;
 
     .grid-container {
-      height: 40vh;
+      height: 50vh;
       width: 50%;
       position: relative;
       display: grid;
       justify-items: center;
+      align-items: center;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1em;
       z-index: 30;

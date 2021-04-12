@@ -6,16 +6,22 @@ const tasksModule = {
   namespaced: true,
   state: {
     userTasks: {},
+    isTasksListLoading: false,
   },
   mutations: {
     setUserTasks(state, tasks) {
       state.userTasks = tasks;
+    },
+    setLoadingStatus(state, status) {
+      console.log(state.isTasksListLoading);
+      state.isTasksListLoading = status;
     },
   },
   actions: {
     async putTaskToServer(context, taskRecord) {
       const { user, info } = taskRecord;
       const { year, month, day } = destructureDate(info.creationDate);
+
       info.creationDate = info.creationDate.toDateString();
       const usersRef = await firebase
         .database()
@@ -25,10 +31,14 @@ const tasksModule = {
     },
     async fetchUserTasks(context) {
       try {
+        console.log("before", context);
+        context.commit("setLoadingStatus", true);
+        console.log("after", context);
         const userRef = await context.dispatch("getUserRef");
         await userRef.on("value", (snapshot) => {
           const userTasks = snapshot.val();
           context.commit("setUserTasks", userTasks);
+          context.commit("setLoadingStatus", false);
           console.log(
             "Data has been successfully fetched!",
             context.state.userTasks
@@ -47,15 +57,22 @@ const tasksModule = {
     async updateTask(context, taskRecord) {
       const { id, info } = taskRecord;
       const { year, month, day } = destructureDate(info.creationDate);
-      try {
-        const userRef = await context.dispatch("getUserRef");
-        await userRef
-          .child(`${year}/${month}/${day}/${id}`)
-          .update({ completed: info.completed });
-        console.log(`task ${id} updated`);
-      } catch (error) {
-        console.error("Updating task error:", error.message);
-      }
+      const userRef = await context.dispatch("getUserRef");
+
+      await userRef
+        .child(`${year}/${month}/${day}/${id}`)
+        .update({ completed: info.completed });
+      console.log(`task ${id} updated`);
+    },
+  },
+  getters: {
+    isTaskListEmpty(state) {
+      if (state.userTasks === null) return true;
+      return Object.keys(state.userTasks).length === 0;
+    },
+    // TODO: remove getter
+    isTasksListLoading(state) {
+      return state.isTasksListLoading;
     },
   },
 };

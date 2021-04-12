@@ -15,8 +15,7 @@
         :class="{ 'day--active': day.toDateString() === selectedDay }"
       >
         <span class="day__monthday">{{ day.getDate() }}</span>
-        <!-- TODO: Place weekdays computations into a separate comp. property -->
-        <span class="day__weekday">{{ weekdays[day.getDay()] }}</span>
+        <span class="day__weekday">{{ getWeekday(day) }}</span>
       </div>
       <div class="calendar__body__shadow right-shadow"></div>
     </section>
@@ -29,6 +28,7 @@
       v-show="isDatePickerShown"
       :monthsList="monthsList"
       @date-select="setMonthAndYear"
+      @keyup.esc="toggleDatePicker(false)"
     ></date-picker>
     <div class="calendar__overlay" v-show="isDatePickerShown"></div>
   </section>
@@ -43,7 +43,6 @@ export default {
   },
   data() {
     return {
-      // is it OK to store static data like here?
       monthsList: [
         "January",
         "February",
@@ -84,15 +83,21 @@ export default {
   },
   methods: {
     showNextMonth() {
+      const { calendar } = this.$refs;
+
       this.year = this.month === 11 ? this.year + 1 : this.year;
       this.month = (this.month + 1) % 12;
       this.selectedDay = null;
+      calendar.scrollLeft = 0;
     },
 
     showPreviousMonth() {
+      const { calendar } = this.$refs;
+
       this.year = this.month === 0 ? this.year - 1 : this.year;
       this.month = this.month === 0 ? 11 : this.month - 1;
       this.selectedDay = null;
+      calendar.scrollLeft = calendar.scrollWidth;
     },
 
     showToday() {
@@ -112,14 +117,22 @@ export default {
     },
 
     toggleDatePicker(isShown) {
+      const bodyEl = document.body;
+
+      bodyEl.style.overflowY = isShown ? "hidden" : "auto";
       this.isDatePickerShown = isShown;
     },
 
     setMonthAndYear(date) {
       const { month, year } = date;
+
       this.month = month;
       this.year = year;
       this.toggleDatePicker(false);
+    },
+
+    getWeekday(date) {
+      return this.weekdays[date.getDay()];
     },
   },
   mounted() {
@@ -209,6 +222,7 @@ export default {
     bottom: 0;
     left: 0;
     z-index: 20;
+    height: 120vh;
     background: $base-blue;
   }
 

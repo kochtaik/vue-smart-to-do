@@ -1,14 +1,14 @@
 <template>
   <section class="tasks">
     <template v-if="tasksNumber">
-      <div class="tasks__heading">
-        <h2 class="tasks__heading__number">
+      <header class="tasks__header">
+        <h2 class="tasks__header__number">
           {{ tasksNumber }} task(-s) for this day
         </h2>
-        <base-button class="tasks__heading__new-task">
+        <base-button class="tasks__header__new-task">
           <router-link to="/add">New task</router-link>
         </base-button>
-      </div>
+      </header>
       <ul class="tasks__task-list task-list">
         <li
           class="task-list__item"
@@ -35,19 +35,21 @@
       </ul>
     </template>
     <template v-else>
-      <div class="tasks__heading">
+      <div class="tasks__header">
         <h2>No tasks for this day</h2>
-        <base-button class="tasks__heading__new-task">
+        <base-button class="tasks__header__new-task">
           <router-link to="/add">New task</router-link>
         </base-button>
       </div>
     </template>
+    <div class="tasks__loader">
+      <pulse-loader :loading="isTasksListLoading"></pulse-loader>
+    </div>
   </section>
 </template>
 
 <script>
 import { destructureDate } from "../../utils/DateParser";
-// TODO: add spinner on data fetching and data changing
 
 export default {
   props: {
@@ -57,15 +59,20 @@ export default {
     },
   },
   computed: {
+    isTasksListEmpty() {
+      return this.$store.getters["tasksModule/isTaskListEmpty"];
+    },
+    isTasksListLoading() {
+      return this.$store.getters["tasksModule/isTasksListLoading"];
+    },
     tasksList() {
-      console.log(this.$store.state.tasksModule.userTasks);
       return this.$store.state.tasksModule.userTasks;
     },
     tasksByDay() {
       const selectedDay = this.selectedDay;
       const { year, month, day } = destructureDate(selectedDay);
 
-      return this.tasksList?.[year]?.[month]?.[day]; // WTF
+      return this.isTasksListEmpty ? {} : this.tasksList[year]?.[month]?.[day];
     },
     tasksNumber() {
       if (!this.tasksByDay) return;
@@ -73,10 +80,16 @@ export default {
     },
   },
   methods: {
-    changeTaskStatus(task) {
+    async changeTaskStatus(task) {
       const taskObject = JSON.parse(task);
+
       taskObject.info.completed = !taskObject.info.completed;
-      this.$store.dispatch("tasksModule/updateTask", taskObject);
+      try {
+        await this.$store.dispatch("tasksModule/updateTask", taskObject);
+      } catch (error) {
+        console.error(error);
+        this.$toast.error("Cannot update task");
+      }
     },
     createJSONString(taskObj) {
       return JSON.stringify(taskObj);
@@ -91,7 +104,8 @@ export default {
 .tasks {
   display: flex;
   flex-direction: column;
-  &__heading {
+
+  &__header {
     display: flex;
     align-items: center;
     margin: 0.5em 0 1.3em 1em;
@@ -108,10 +122,16 @@ export default {
       }
     }
   }
+
+  &__loader {
+    align-self: center;
+  }
+
   h2 {
     font-size: 1.2em;
     font-weight: 700;
   }
+
   .task-list {
     list-style: none;
     margin-top: 0;

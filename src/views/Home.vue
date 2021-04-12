@@ -6,6 +6,7 @@
 <script>
 import TasksList from "../components/Tasks/TasksList.vue";
 import TheCalendar from "../components/TheCalendar.vue";
+
 export default {
   components: {
     TasksList,

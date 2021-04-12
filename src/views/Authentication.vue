@@ -1,47 +1,50 @@
 <template>
   <section class="auth">
-    <h2 class="auth__title">{{ pageDestination }}</h2>
-    <form @submit.prevent="defineAction" class="auth__form form">
-      <label for="email">Email</label>
-      <input
-        class="form__email-field"
-        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,}$"
-        title="Email must be of the form username@domain.com"
-        reqiured
-        type="email"
-        id="email"
-        v-model.trim="email"
-      />
-      <label for="password">Password</label>
-      <input
-        class="form__password-field"
-        pattern="(?=.*d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-        title="Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
-        reqiured
-        ref="pass"
-        type="password"
-        id="password"
-        v-model="password"
-      />
-      <label for="showPassword">Show password</label>
-      <input
-        type="checkbox"
-        name="showPassword"
-        id="showPassword"
-        @input="togglePassVisibility"
-      />
-      <base-button class="form__submit" type="submit">{{
-        pageDestination
-      }}</base-button>
-    </form>
-    <p v-if="pageDestination === 'Sign up'" class="auth__change-action">
-      Already have an account?
-      <router-link to="/sign-in">Sign in</router-link>
-    </p>
-    <p v-else class="auth__change-action">
-      Don't have an account yet?
-      <router-link to="/sign-up">Sign up</router-link>
-    </p>
+    <template v-if="!isAuthenticationPending">
+      <h2 class="auth__title">{{ pageDestination }}</h2>
+      <form @submit.prevent="defineAction" class="auth__form form">
+        <label for="email">Email</label>
+        <input
+          class="form__email-field"
+          pattern="[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,}$"
+          title="Email must be of the form username@domain.com"
+          reqiured
+          type="email"
+          id="email"
+          v-model.trim="email"
+        />
+        <label for="password">Password</label>
+        <input
+          class="form__password-field"
+          pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$"
+          title="Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
+          reqiured
+          ref="pass"
+          type="password"
+          id="password"
+          v-model="password"
+        />
+        <label for="showPassword">Show password</label>
+        <input
+          type="checkbox"
+          name="showPassword"
+          id="showPassword"
+          @input="togglePassVisibility"
+        />
+        <base-button class="form__submit" type="submit">{{
+          pageDestination
+        }}</base-button>
+      </form>
+      <p v-if="pageDestination === 'Sign up'" class="auth__change-action">
+        Already have an account?
+        <router-link to="/sign-in">Sign in</router-link>
+      </p>
+      <p v-else class="auth__change-action">
+        Don't have an account yet?
+        <router-link to="/sign-up">Sign up</router-link>
+      </p>
+    </template>
+    <pulse-loader class="auth__loader" :loading="isAuthenticationPending"></pulse-loader>
   </section>
 </template>
 
@@ -90,6 +93,9 @@ export default {
     pageDestination() {
       return this.$route.meta.pageDestination;
     },
+    isAuthenticationPending() {
+      return this.$store.state.authModule.isAuthenticationPending;
+    },
   },
 };
 </script>
@@ -109,6 +115,18 @@ export default {
     font-size: 1.5em;
   }
 
+  &__change-action {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__loader {
+    margin: 0 auto;
+    width: max-content;
+  }
+
   .form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -125,13 +143,6 @@ export default {
       background: $base-blue;
       color: $dark-contrast;
     }
-  }
-
-  &__change-action {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
   }
 }
 

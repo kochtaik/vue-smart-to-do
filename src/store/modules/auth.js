@@ -5,28 +5,35 @@ const authModule = {
   namespaced: true,
   state: {
     currentUser: null,
+    isAuthenticationPending: false,
   },
   mutations: {
     setUser(state, user) {
       state.currentUser = user;
     },
+    setAuthenticationStatus(state, status) {
+      state.isAuthenticationPending = status;
+    },
   },
   actions: {
     async signUp(context, signupData) {
       const { email, password } = signupData;
-
+      context.commit("setAuthenticationStatus", true);
       await firebase.auth().createUserWithEmailAndPassword(email, password);
       await context.dispatch("fetchUser");
 
+      context.commit("setAuthenticationStatus", false);
       router.push("/");
     },
 
     async signIn(context, signinData) {
       const { email, password } = signinData;
+      context.commit("setAuthenticationStatus", true);
 
       await firebase.auth().signInWithEmailAndPassword(email, password);
       await context.dispatch("fetchUser");
 
+      context.commit("setAuthenticationStatus", false);
       router.push("/");
     },
 

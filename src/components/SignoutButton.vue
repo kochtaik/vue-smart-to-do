@@ -19,6 +19,7 @@ export default {
     async signOut() {
       try {
         await this.$store.dispatch("authModule/signOut");
+        this.$store.commit("tasksModule/setUserTasks", {});
       } catch (error) {
         console.error(error.message);
         this.$toast.error(

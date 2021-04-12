@@ -78,22 +78,35 @@ export default {
   top: 50%;
   transform: translate(-50%, -50%);
   margin: 0 auto;
-  padding: 0.3em;
-  width: 85%;
+  padding: 1em;
+  width: max-content;
   display: flex;
   flex-direction: column;
   justify-content: center;
   border: 1px solid $base-gray;
   border-radius: 7px;
+
+  &__heading {
+    font-size: 1.2em;
+    font-weight: 700;
+  }
+
   &__input {
     height: 1.5em;
     margin: 0.8em 0;
   }
+
   &__date-picker {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin: 0.8em 0;
+
+    > input {
+      margin-left: 0.5em;
+    }
   }
+
   &__button {
     background: $base-blue;
     color: $dark-contrast;
