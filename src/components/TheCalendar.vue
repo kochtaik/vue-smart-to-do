@@ -4,21 +4,35 @@
       {{ monthName }}
       {{ year }}
     </h2>
-    <section class="calendar__body" ref="calendar">
-      <div class="calendar__body__shadow left-shadow"></div>
-      <div
-        v-for="(day, idx) in daysInMonth"
-        :key="idx"
-        :ref="day.toDateString()"
-        @click="selectDay(day)"
-        class="calendar__body__day day"
-        :class="{ 'day--active': day.toDateString() === selectedDay }"
-      >
-        <span class="day__monthday">{{ day.getDate() }}</span>
-        <span class="day__weekday">{{ getWeekday(day) }}</span>
-      </div>
-      <div class="calendar__body__shadow right-shadow"></div>
-    </section>
+    <template v-if="userTasks">
+      <section class="calendar__body" ref="calendar">
+        <div class="calendar__body__shadow left-shadow"></div>
+        <div
+          v-for="(day, idx) in daysInMonth"
+          :key="idx"
+          :ref="day.toDateString()"
+          @click="selectDay(day)"
+          class="calendar__body__day day"
+          :class="{ 'day--active': day.toDateString() === selectedDay }"
+        >
+          <span class="day__monthday">{{ day.getDate() }}</span>
+          <span class="day__weekday">{{ getWeekday(day) }}</span>
+          <div class="tasks-status">
+            <span
+              class="tasks-status__completed"
+              v-show="containsCompleted(day)"
+              title="This day has completed tasks"
+            ></span>
+            <span
+              class="tasks-status__incompleted"
+              v-show="containsIncompleted(day)"
+              title="This day has incompleted tasks"
+            ></span>
+          </div>
+        </div>
+        <div class="calendar__body__shadow right-shadow"></div>
+      </section>
+    </template>
     <nav class="calendar__navigation">
       <base-button @click="showPreviousMonth">Previous month</base-button>
       <base-button @click="showToday">Today</base-button>
@@ -69,7 +83,6 @@ export default {
     monthName() {
       return this.monthsList[this.month];
     },
-
     daysInMonth() {
       const { month, year } = this;
       const date = new Date(year, month, 1);
@@ -80,7 +93,11 @@ export default {
       }
       return days;
     },
+    userTasks() {
+      return this.$store.state.tasksModule.userTasks;
+    },
   },
+
   methods: {
     showNextMonth() {
       const { calendar } = this.$refs;
@@ -133,6 +150,25 @@ export default {
 
     getWeekday(date) {
       return this.weekdays[date.getDay()];
+    },
+
+    getTasksByDay(date) {
+      const dateString = date.toDateString();
+
+      return Object.entries(this.userTasks).filter(([, task]) => {
+        return task.creationDate === dateString;
+      });
+    },
+
+    // TODO: UNITE COMPUTATIONS OF COMPLETED AND INCOMPLETED TASKS
+    containsCompleted(date) {
+      const tasksByDate = this.getTasksByDay(date);
+      return tasksByDate.some(([, task]) => task.completed);
+    },
+
+    containsIncompleted(date) {
+      const tasksByDate = this.getTasksByDay(date);
+      return tasksByDate.some(([, task]) => !task.completed);
     },
   },
   mounted() {
@@ -208,9 +244,30 @@ export default {
       font-weight: 700;
 
       cursor: pointer;
+
       &--active {
         border: 1px solid $selection;
         color: $selection;
+      }
+
+      .tasks-status {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 30%;
+
+        span {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+        }
+
+        &__completed {
+          background: $base-blue;
+        }
+        &__incompleted {
+          background: $red-alert;
+        }
       }
     }
   }
