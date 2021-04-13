@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import store from "../store";
 import Home from "../views/Home.vue";
 import AddTask from "../components/Tasks/AddTask.vue";
+import EditTask from "../components/Tasks/EditTask.vue";
 import Authentication from "../views/Authentication.vue";
 
 const routes = [
@@ -31,6 +32,10 @@ const routes = [
   {
     path: "/add",
     component: AddTask,
+  },
+  {
+    path: "/edit/:taskId",
+    component: EditTask,
   },
 ];
 

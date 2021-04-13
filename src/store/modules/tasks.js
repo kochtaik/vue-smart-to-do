@@ -51,13 +51,10 @@ const tasksModule = {
     },
 
     async updateTask(context, taskRecord) {
-      const { id, info } = taskRecord;
+      const [id, info] = taskRecord;
       const userRef = await context.dispatch("getUserRef");
 
-      await userRef
-        .child("tasks")
-        .child(id)
-        .update({ completed: info.completed });
+      await userRef.child("tasks").child(id).set(info);
       console.log(`task ${id} updated`);
     },
   },

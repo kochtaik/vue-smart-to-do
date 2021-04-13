@@ -22,15 +22,20 @@
           >
             {{ info.taskContent }}
           </label>
-          <input
-            class="task-list__item__checkbox"
-            type="checkbox"
-            name=""
-            :id="idx"
-            :value="createJSONString({ id, info })"
-            :checked="info.completed"
-            @change="changeTaskStatus($event.target.value)"
-          />
+          <div>
+            <router-link :to="`/edit/${id}`">
+              <i class="task-list__item__icon fas fa-pen"></i>
+            </router-link>
+            <input
+              class="task-list__item__checkbox"
+              type="checkbox"
+              name=""
+              :id="idx"
+              :value="createJSONString({ id, info })"
+              :checked="info.completed"
+              @change="changeTaskStatus($event.target.value)"
+            />
+          </div>
         </li>
       </ul>
     </template>
@@ -154,7 +159,10 @@ export default {
       &__checkbox {
         cursor: pointer;
         transform: scale(1.2);
-        margin-right: 1.3em;
+        margin: 0 1.3em;
+      }
+      &__icon {
+        color: $base-gray;
       }
       &__label--done {
         text-decoration: line-through;
