@@ -22,12 +22,16 @@
           >
             {{ info.taskContent }}
           </label>
-          <div>
+          <div class="options">
+            <i
+              class="options__icon far fa-trash-alt"
+              @click="deleteTask(id)"
+            ></i>
             <router-link :to="`/edit/${id}`">
-              <i class="task-list__item__icon fas fa-pen"></i>
+              <i class="options__icon fas fa-pen"></i>
             </router-link>
             <input
-              class="task-list__item__checkbox"
+              class="options__checkbox"
               type="checkbox"
               name=""
               :id="idx"
@@ -100,6 +104,15 @@ export default {
         this.$toast.error("Cannot update task");
       }
     },
+    async deleteTask(taskId) {
+      try {
+        await this.$store.dispatch("tasksModule/deleteTask", taskId);
+        this.$toast.success("Task has been deleted");
+      } catch (error) {
+        console.error(error);
+        this.$toast.error("Cannot delete task");
+      }
+    },
     createJSONString(taskObj) {
       return JSON.stringify(taskObj);
     },
@@ -156,16 +169,26 @@ export default {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      &__checkbox {
-        cursor: pointer;
-        transform: scale(1.2);
-        margin: 0 1.3em;
-      }
-      &__icon {
-        color: $base-gray;
-      }
+
       &__label--done {
         text-decoration: line-through;
+      }
+
+      .options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 30%;
+
+        &__checkbox {
+          cursor: pointer;
+          transform: scale(1.2);
+        }
+
+        &__icon {
+          color: $base-gray;
+          cursor: pointer;
+        }
       }
     }
   }

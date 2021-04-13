@@ -57,6 +57,11 @@ const tasksModule = {
       await userRef.child("tasks").child(id).set(info);
       console.log(`task ${id} updated`);
     },
+
+    async deleteTask(context, id) {
+      const userRef = await context.dispatch("getUserRef");
+      await userRef.child("tasks").child(id).remove();
+    },
   },
   getters: {
     isTaskListEmpty(state) {
