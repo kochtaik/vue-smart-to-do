@@ -4,35 +4,33 @@
       {{ monthName }}
       {{ year }}
     </h2>
-    <template v-if="userTasks">
-      <section class="calendar__body" ref="calendar">
-        <div class="calendar__body__shadow left-shadow"></div>
-        <div
-          v-for="(day, idx) in daysInMonth"
-          :key="idx"
-          :ref="day.toDateString()"
-          @click="selectDay(day)"
-          class="calendar__body__day day"
-          :class="{ 'day--active': day.toDateString() === selectedDay }"
-        >
-          <span class="day__monthday">{{ day.getDate() }}</span>
-          <span class="day__weekday">{{ getWeekday(day) }}</span>
-          <div class="tasks-status">
-            <span
-              class="tasks-status__completed"
-              v-show="containsCompleted(day)"
-              title="This day has completed tasks"
-            ></span>
-            <span
-              class="tasks-status__incompleted"
-              v-show="containsIncompleted(day)"
-              title="This day has incompleted tasks"
-            ></span>
-          </div>
+    <section class="calendar__body" ref="calendar">
+      <div class="calendar__body__shadow left-shadow"></div>
+      <div
+        v-for="(day, idx) in daysInMonth"
+        :key="idx"
+        :ref="day.toDateString()"
+        @click="selectDay(day)"
+        class="calendar__body__day day"
+        :class="{ 'day--active': day.toDateString() === selectedDay }"
+      >
+        <span class="day__monthday">{{ day.getDate() }}</span>
+        <span class="day__weekday">{{ getWeekday(day) }}</span>
+        <div class="tasks-status">
+          <span
+            class="tasks-status__completed"
+            v-show="containsCompleted(day)"
+            title="This day has completed tasks"
+          ></span>
+          <span
+            class="tasks-status__incompleted"
+            v-show="containsIncompleted(day)"
+            title="This day has incompleted tasks"
+          ></span>
         </div>
-        <div class="calendar__body__shadow right-shadow"></div>
-      </section>
-    </template>
+      </div>
+      <div class="calendar__body__shadow right-shadow"></div>
+    </section>
     <nav class="calendar__navigation">
       <base-button @click="showPreviousMonth">Previous month</base-button>
       <base-button @click="showToday">Today</base-button>
@@ -155,6 +153,7 @@ export default {
     getTasksByDay(date) {
       const dateString = date.toDateString();
 
+      if (!this.userTasks) return;
       return Object.entries(this.userTasks).filter(([, task]) => {
         return task.creationDate === dateString;
       });
@@ -163,11 +162,13 @@ export default {
     // TODO: UNITE COMPUTATIONS OF COMPLETED AND INCOMPLETED TASKS
     containsCompleted(date) {
       const tasksByDate = this.getTasksByDay(date);
+      if (!tasksByDate) return;
       return tasksByDate.some(([, task]) => task.completed);
     },
 
     containsIncompleted(date) {
       const tasksByDate = this.getTasksByDay(date);
+      if (!tasksByDate) return;
       return tasksByDate.some(([, task]) => !task.completed);
     },
   },

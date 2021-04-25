@@ -47,25 +47,31 @@ export default {
       return this.$store.state.tasksModule.userTasks;
     },
 
+    taskId() {
+      return this.$route.params.taskId;
+    },
+
     taskById() {
-      const taskId = this.$route.params.taskId;
+      const { taskId } = this;
       const taskEntry = Object.entries(this.tasksList).find(
         ([id]) => id === taskId
       );
-      // taskEntry has form [id, taskObj]
-      return taskEntry;
+      if (!taskEntry) return;
+
+      return {
+        id: taskId,
+        info: taskEntry[1],
+      };
     },
 
     // computed properties with implemented two-way data binding
     taskContent: {
       get() {
         if (!this.taskById) return;
-        const [, task] = this.taskById;
-        return task.taskContent;
+        return this.taskById.info.taskContent;
       },
       set(newContent) {
-        const [, task] = this.taskById;
-        task.taskContent = newContent;
+        this.taskById.info.taskContent = newContent;
       },
     },
 
@@ -73,12 +79,10 @@ export default {
     validDateString: {
       get() {
         if (!this.taskById) return;
-        const [, task] = this.taskById;
-        return this.handleTimezone(task.creationDate);
+        return this.handleTimezone(this.taskById.info.creationDate);
       },
       set(dateString) {
-        const [, task] = this.taskById;
-        task.creationDate = new Date(dateString).toDateString();
+        this.taskById.info.creationDate = new Date(dateString).toDateString();
       },
     },
   },

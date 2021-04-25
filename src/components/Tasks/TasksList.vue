@@ -33,11 +33,9 @@
             <input
               class="options__checkbox"
               type="checkbox"
-              name=""
               :id="idx"
-              :value="createJSONString({ id, info })"
               :checked="info.completed"
-              @change="changeTaskStatus($event.target.value)"
+              @change="changeTaskStatus({ id, info })"
             />
           </div>
         </li>
@@ -85,6 +83,7 @@ export default {
           return selectedDay.toDateString() === task.creationDate;
         }
       );
+      console.log(Object.fromEntries(filteredTasks));
       return Object.fromEntries(filteredTasks);
     },
     tasksNumber() {
@@ -94,11 +93,9 @@ export default {
   },
   methods: {
     async changeTaskStatus(task) {
-      const taskObject = JSON.parse(task);
-
-      taskObject.info.completed = !taskObject.info.completed;
+      task.info.completed = !task.info.completed;
       try {
-        await this.$store.dispatch("tasksModule/updateTask", taskObject);
+        await this.$store.dispatch("tasksModule/updateTask", task);
       } catch (error) {
         console.error(error);
         this.$toast.error("Cannot update task");
@@ -112,9 +109,6 @@ export default {
         console.error(error);
         this.$toast.error("Cannot delete task");
       }
-    },
-    createJSONString(taskObj) {
-      return JSON.stringify(taskObj);
     },
   },
 };

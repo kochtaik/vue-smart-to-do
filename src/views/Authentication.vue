@@ -6,7 +6,6 @@
         <label for="email">Email</label>
         <input
           class="form__email-field"
-          pattern="[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,}$"
           title="Email must be of the form username@domain.com"
           reqiured
           type="email"
@@ -16,7 +15,6 @@
         <label for="password">Password</label>
         <input
           class="form__password-field"
-          pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$"
           title="Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
           reqiured
           ref="pass"
