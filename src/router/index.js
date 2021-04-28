@@ -13,14 +13,14 @@ router.beforeEach((to, from, next) => {
   const forNotLoggedInUsers = to.matched.some(
     (record) => record.meta.forNotLoggedInUsers
   );
-  console.log(
-    "is public:",
-    isPublic,
-    "is signed in:",
-    isSignedIn,
-    "for not logged in users:",
-    forNotLoggedInUsers
-  );
+  // console.log(
+  //   "is public:",
+  //   isPublic,
+  //   "is signed in:",
+  //   isSignedIn,
+  //   "for not logged in users:",
+  //   forNotLoggedInUsers
+  // );
   if (!isPublic && !isSignedIn) {
     return next("/sign-in");
   }

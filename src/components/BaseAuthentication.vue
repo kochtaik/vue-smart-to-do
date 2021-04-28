@@ -1,11 +1,8 @@
 <template>
   <section class="auth">
     <template v-if="!isAuthenticationPending">
-      <h2 class="auth__title">{{ pageDestination }}</h2>
-      <form
-        @submit.prevent="defineAuthenticationAction"
-        class="auth__form form"
-      >
+      <h2 class="auth__title">{{ cardCaption }}</h2>
+      <form @submit.prevent="submitInputData" class="auth__form form">
         <label for="email">Email</label>
         <input
           class="form__email-field"
@@ -20,8 +17,7 @@
           class="form__password-field"
           title="Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
           reqiured
-          ref="pass"
-          type="password"
+          :type="passFieldType"
           id="password"
           v-model="password"
         />
@@ -33,16 +29,13 @@
           @input="togglePassVisibility"
         />
         <base-button class="form__submit" type="submit">{{
-          pageDestination
+          cardCaption
         }}</base-button>
       </form>
-      <p v-if="pageDestination === 'Sign up'" class="auth__change-action">
-        Already have an account?
-        <router-link to="/sign-in">Sign in</router-link>
-      </p>
-      <p v-else class="auth__change-action">
-        Don't have an account yet?
-        <router-link to="/sign-up">Sign up</router-link>
+      <p class="auth__change-action">
+        <router-link :to="oppositeAuthAction.link">{{
+          oppositeAuthAction.name
+        }}</router-link>
       </p>
     </template>
     <pulse-loader
@@ -53,54 +46,48 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState } from "vuex";
 
 export default {
   data() {
     return {
       email: "",
       password: "",
+      passFieldType: "password",
     };
   },
-  methods: {
-    ...mapActions("authModule", { createUser: "signUp", logIn: "signIn" }),
 
-    defineAuthenticationAction() {
-      return this.pageDestination === "Sign in" ? this.signIn() : this.signUp();
-    },
-
-    async signUp() {
-      const { email, password } = this;
-      try {
-        await this.createUser({ email, password });
-      } catch (err) {
-        console.error(err.message);
-        this.$toast.error(
-          "Something went wrong. Please, check your internet connection and retry"
-        );
-      }
-    },
-    async signIn() {
-      const { email, password } = this;
-      try {
-        await this.logIn({ email, password });
-      } catch (err) {
-        console.error(err.message);
-        this.$toast.error("This user doesn't exist");
-      }
-    },
-    togglePassVisibility() {
-      const passwordInput = this.$refs.pass;
-
-      passwordInput.type =
-        passwordInput.type === "password" ? "text" : "password";
+  emits: ["submit-data"],
+  props: {
+    cardCaption: {
+      type: String,
+      required: true,
     },
   },
+
   computed: {
     ...mapState("authModule", ["isAuthenticationPending"]),
+    oppositeAuthAction() {
+      const authActionData = { link: "/sign-up", name: "Sign up" };
+      if (this.cardCaption === "Sign up") {
+        authActionData.link = "/sign-in";
+        authActionData.name = "Sign in";
+      }
+      return authActionData;
+    },
+  },
 
-    pageDestination() {
-      return this.$route.meta.pageDestination;
+  methods: {
+    submitInputData() {
+      const { email, password } = this;
+      const inputData = { email, password };
+
+      this.$emit("submit-data", inputData);
+    },
+
+    togglePassVisibility() {
+      this.passFieldType =
+        this.passFieldType === "password" ? "text" : "password";
     },
   },
 };

@@ -1,7 +1,8 @@
 import Home from "../views/Home.vue";
 import AddTask from "../components/Tasks/AddTask.vue";
 import EditTask from "../components/Tasks/EditTask.vue";
-import Authentication from "../views/Authentication.vue";
+import SignIn from "../views/authentication/SignIn.vue";
+import SignUp from "../views/authentication/SignUp.vue";
 
 export const routes = [
   {
@@ -11,18 +12,16 @@ export const routes = [
   },
   {
     path: "/sign-up",
-    component: Authentication,
+    component: SignUp,
     meta: {
-      pageDestination: "Sign up",
       isPublic: true,
       forNotLoggedInUsers: true,
     },
   },
   {
     path: "/sign-in",
-    component: Authentication,
+    component: SignIn,
     meta: {
-      pageDestination: "Sign in",
       isPublic: true,
       forNotLoggedInUsers: true,
     },
