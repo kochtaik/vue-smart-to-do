@@ -19,8 +19,8 @@ const authModule = {
     async signUp(context, signupData) {
       const { email, password } = signupData;
       context.commit("setAuthenticationStatus", true);
+
       await firebase.auth().createUserWithEmailAndPassword(email, password);
-      await context.dispatch("fetchUser");
 
       context.commit("setAuthenticationStatus", false);
       router.push("/");
@@ -31,28 +31,21 @@ const authModule = {
       context.commit("setAuthenticationStatus", true);
 
       await firebase.auth().signInWithEmailAndPassword(email, password);
-      await context.dispatch("fetchUser");
 
       context.commit("setAuthenticationStatus", false);
       router.push("/");
     },
 
-    async signOut(context) {
+    async signOut() {
       await firebase.auth().signOut();
-
-      context.commit("setUser", null); // or this.dispatch('fetchUser') would be better?
       console.log("User has been signed out");
-
       router.push("/sign-in");
     },
 
-    async getCurrentUser() {
-      return await firebase.getCurrentUser();
-    },
-
-    async fetchUser(context) {
-      const user = await context.dispatch("getCurrentUser");
+    async getCurrentUser(context) {
+      const user = await firebase.auth().currentUser;
       context.commit("setUser", user);
+      return context.state.currentUser;
     },
   },
   getters: {
