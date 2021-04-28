@@ -20,11 +20,14 @@
 </template>
 
 <script>
+import { mapState, mapActions } from "vuex";
 export default {
   methods: {
+    ...mapActions("taskModule", ["updateTask"]),
     async saveTask() {
       try {
-        await this.$store.dispatch("tasksModule/updateTask", this.taskById);
+        await this.updateTask(this.taskById);
+
         this.$router.push("/");
         this.$toast.success("Task has been successfully updated!");
       } catch (error) {
@@ -43,9 +46,7 @@ export default {
     },
   },
   computed: {
-    tasksList() {
-      return this.$store.state.tasksModule.userTasks;
-    },
+    ...mapState("taskModule", { tasksList: "userTasks" }),
 
     taskId() {
       return this.$route.params.taskId;

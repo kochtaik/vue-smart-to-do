@@ -50,12 +50,14 @@
       </div>
     </template>
     <div class="tasks__loader">
-      <pulse-loader :loading="isTasksListLoading"></pulse-loader>
+      <pulse-loader :loading="isTaskListLoading"></pulse-loader>
     </div>
   </section>
 </template>
 
 <script>
+import { mapState, mapActions, mapGetters } from "vuex";
+
 export default {
   props: {
     selectedDay: {
@@ -64,19 +66,16 @@ export default {
     },
   },
   computed: {
-    isTasksListEmpty() {
-      return this.$store.getters["tasksModule/isTaskListEmpty"];
-    },
-    isTasksListLoading() {
-      return this.$store.state.tasksModule.isTasksListLoading;
-    },
-    tasksList() {
-      return this.$store.state.tasksModule.userTasks;
-    },
+    ...mapState("taskModule", {
+      isTaskListLoading: "isTaskListLoading",
+      tasksList: "userTasks",
+    }),
+    ...mapGetters("taskModule", ["isTaskListEmpty"]),
+
     tasksByDate() {
       const selectedDay = this.selectedDay;
 
-      if (this.isTasksListEmpty) return {};
+      if (this.isTaskListEmpty) return {};
 
       const filteredTasks = Object.entries(this.tasksList).filter(
         ([, task]) => {
@@ -92,10 +91,14 @@ export default {
     },
   },
   methods: {
+    ...mapActions("taskModule", {
+      updateTask: "updateTask",
+      removeTask: "deleteTask",
+    }),
     async changeTaskStatus(task) {
       task.info.completed = !task.info.completed;
       try {
-        await this.$store.dispatch("tasksModule/updateTask", task);
+        await this.updateTask(task);
       } catch (error) {
         console.error(error);
         this.$toast.error("Cannot update task");
@@ -103,7 +106,7 @@ export default {
     },
     async deleteTask(taskId) {
       try {
-        await this.$store.dispatch("tasksModule/deleteTask", taskId);
+        await this.removeTask(taskId);
         this.$toast.success("Task has been deleted");
       } catch (error) {
         console.error(error);

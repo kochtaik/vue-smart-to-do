@@ -2,7 +2,10 @@
   <section class="auth">
     <template v-if="!isAuthenticationPending">
       <h2 class="auth__title">{{ pageDestination }}</h2>
-      <form @submit.prevent="defineAction" class="auth__form form">
+      <form
+        @submit.prevent="defineAuthenticationAction"
+        class="auth__form form"
+      >
         <label for="email">Email</label>
         <input
           class="form__email-field"
@@ -50,6 +53,8 @@
 </template>
 
 <script>
+import { mapState, mapActions } from "vuex";
+
 export default {
   data() {
     return {
@@ -58,16 +63,16 @@ export default {
     };
   },
   methods: {
-    defineAction() {
+    ...mapActions("authModule", { createUser: "signUp", logIn: "signIn" }),
+
+    defineAuthenticationAction() {
       return this.pageDestination === "Sign in" ? this.signIn() : this.signUp();
     },
+
     async signUp() {
       const { email, password } = this;
       try {
-        await this.$store.dispatch("authModule/signUp", {
-          email,
-          password,
-        });
+        await this.createUser({ email, password });
       } catch (err) {
         console.error(err.message);
         this.$toast.error(
@@ -78,7 +83,7 @@ export default {
     async signIn() {
       const { email, password } = this;
       try {
-        await this.$store.dispatch("authModule/signIn", { email, password });
+        await this.logIn({ email, password });
       } catch (err) {
         console.error(err.message);
         this.$toast.error("This user doesn't exist");
@@ -86,16 +91,16 @@ export default {
     },
     togglePassVisibility() {
       const passwordInput = this.$refs.pass;
+
       passwordInput.type =
         passwordInput.type === "password" ? "text" : "password";
     },
   },
   computed: {
+    ...mapState("authModule", ["isAuthenticationPending"]),
+
     pageDestination() {
       return this.$route.meta.pageDestination;
-    },
-    isAuthenticationPending() {
-      return this.$store.state.authModule.isAuthenticationPending;
     },
   },
 };

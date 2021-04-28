@@ -14,12 +14,16 @@
 </style>
 
 <script>
+import { mapMutations, mapActions, mapGetters } from "vuex";
+
 export default {
   methods: {
+    ...mapMutations("taskModule", ["setUserTasks"]),
+    ...mapActions("authModule", { logOut: "signOut" }),
     async signOut() {
       try {
-        await this.$store.dispatch("authModule/signOut");
-        this.$store.commit("tasksModule/setUserTasks", {});
+        await this.logOut();
+        this.setUserTasks({});
       } catch (error) {
         console.error(error.message);
         this.$toast.error(
@@ -29,9 +33,7 @@ export default {
     },
   },
   computed: {
-    isUserSignedIn() {
-      return this.$store.state.authModule.currentUser !== null;
-    },
+    ...mapGetters("authModule", ["isUserSignedIn"]),
   },
 };
 </script>

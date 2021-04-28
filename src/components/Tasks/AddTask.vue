@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import { mapState, mapActions } from "vuex";
+
 export default {
   data() {
     return {
@@ -28,13 +30,14 @@ export default {
     };
   },
   methods: {
+    ...mapActions("taskModule", ["putTaskToServer"]),
     clearTaskContent() {
       if (this.taskContent === "What are you planing?") {
         this.taskContent = "";
       }
     },
     async prepareDataBeforeSending() {
-      const user = this.$store.state.authModule.currentUser;
+      const user = this.currentUser;
       const taskRecord = {
         user,
         info: {
@@ -44,7 +47,7 @@ export default {
         },
       };
       try {
-        await this.$store.dispatch("tasksModule/putTaskToServer", taskRecord);
+        await this.putTaskToServer(taskRecord);
         this.$toast.success(
           `Task has been saved for ${this.dateAsObject.toDateString()}!`
         );
@@ -62,6 +65,7 @@ export default {
     },
   },
   computed: {
+    ...mapState("authModule", ["currentUser"]),
     dateAsObject() {
       return this.chosenDate === "" ? new Date() : new Date(this.chosenDate);
     },

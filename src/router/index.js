@@ -50,7 +50,7 @@ router.beforeEach(async (to, from, next) => {
   const forNotLoggedInUsers = to.matched.some(
     (record) => record.meta.forNotLoggedInUsers
   );
-  const isTaskListEmpty = store.getters["tasksModule/isTaskListEmpty"];
+  const isTaskListEmpty = store.getters["taskModule/isTaskListEmpty"];
 
   console.log(
     "is public:",
@@ -68,7 +68,7 @@ router.beforeEach(async (to, from, next) => {
   }
   if (!isPublic && isSignedIn && isTaskListEmpty) {
     await store.dispatch("authModule/fetchUser");
-    await store.dispatch("tasksModule/fetchUserTasks");
+    await store.dispatch("taskModule/fetchUserTasks");
   }
   next();
 });

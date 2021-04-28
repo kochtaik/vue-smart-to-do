@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import DatePicker from "./UI/DatePicker.vue";
 
 export default {
@@ -78,21 +79,22 @@ export default {
   },
 
   computed: {
+    ...mapState("taskModule", ["userTasks"]),
+
     monthName() {
       return this.monthsList[this.month];
     },
+
     daysInMonth() {
       const { month, year } = this;
       const date = new Date(year, month, 1);
       const days = [];
+
       while (date.getMonth() === month) {
         days.push(new Date(date));
         date.setDate(date.getDate() + 1);
       }
       return days;
-    },
-    userTasks() {
-      return this.$store.state.tasksModule.userTasks;
     },
   },
 
@@ -162,12 +164,14 @@ export default {
     // TODO: UNITE COMPUTATIONS OF COMPLETED AND INCOMPLETED TASKS
     containsCompleted(date) {
       const tasksByDate = this.getTasksByDay(date);
+
       if (!tasksByDate) return;
       return tasksByDate.some(([, task]) => task.completed);
     },
 
     containsIncompleted(date) {
       const tasksByDate = this.getTasksByDay(date);
+
       if (!tasksByDate) return;
       return tasksByDate.some(([, task]) => !task.completed);
     },

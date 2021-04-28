@@ -55,6 +55,11 @@ const authModule = {
       context.commit("setUser", user);
     },
   },
+  getters: {
+    isUserSignedIn(state) {
+      return state.currentUser !== null;
+    },
+  },
 };
 
 export default authModule;

@@ -1,19 +1,19 @@
 import firebase from "firebase";
 import router from "../../router";
 
-const tasksModule = {
+const taskModule = {
   namespaced: true,
   state: {
     userTasks: {},
-    isTasksListLoading: false,
+    isTaskListLoading: false,
   },
   mutations: {
     setUserTasks(state, tasks) {
       state.userTasks = tasks;
     },
     setLoadingStatus(state, status) {
-      console.log(state.isTasksListLoading);
-      state.isTasksListLoading = status;
+      console.log(state.isTaskListLoading);
+      state.isTaskListLoading = status;
     },
   },
   actions: {
@@ -71,4 +71,4 @@ const tasksModule = {
   },
 };
 
-export default tasksModule;
+export default taskModule;
