@@ -19,12 +19,12 @@
         <div class="tasks-status">
           <span
             class="tasks-status__completed"
-            v-show="containsCompleted(day)"
+            v-show="getTasksStatusByDate(day)?.hasCompleted"
             title="This day has completed tasks"
           ></span>
           <span
             class="tasks-status__incompleted"
-            v-show="containsIncompleted(day)"
+            v-show="getTasksStatusByDate(day)?.hasIncompleted"
             title="This day has incompleted tasks"
           ></span>
         </div>
@@ -47,8 +47,9 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import DatePicker from "./UI/DatePicker.vue";
+import { getDaysInMonth } from "../utils/calendarHelpers";
 
 export default {
   components: {
@@ -80,21 +81,14 @@ export default {
 
   computed: {
     ...mapState("taskModule", ["userTasks"]),
+    ...mapGetters("taskModule", ["tasksByDate"]),
 
     monthName() {
       return this.monthsList[this.month];
     },
 
     daysInMonth() {
-      const { month, year } = this;
-      const date = new Date(year, month, 1);
-      const days = [];
-
-      while (date.getMonth() === month) {
-        days.push(new Date(date));
-        date.setDate(date.getDate() + 1);
-      }
-      return days;
+      return getDaysInMonth(this.month, this.year);
     },
   },
 
@@ -121,6 +115,7 @@ export default {
       const today = new Date();
       this.month = today.getMonth();
       this.year = today.getFullYear();
+
       this.$nextTick(() => {
         const todayElem = this.$refs[today.toDateString()];
         todayElem.scrollIntoView({ inline: "center" });
@@ -152,28 +147,18 @@ export default {
       return this.weekdays[date.getDay()];
     },
 
-    getTasksByDay(date) {
-      const dateString = date.toDateString();
-
-      if (!this.userTasks) return;
-      return Object.entries(this.userTasks).filter(([, task]) => {
-        return task.creationDate === dateString;
-      });
-    },
-
-    // TODO: UNITE COMPUTATIONS OF COMPLETED AND INCOMPLETED TASKS
-    containsCompleted(date) {
-      const tasksByDate = this.getTasksByDay(date);
-
+    getTasksStatusByDate(date) {
+      const tasksByDate = this.tasksByDate(date);
       if (!tasksByDate) return;
-      return tasksByDate.some(([, task]) => task.completed);
-    },
 
-    containsIncompleted(date) {
-      const tasksByDate = this.getTasksByDay(date);
-
-      if (!tasksByDate) return;
-      return tasksByDate.some(([, task]) => !task.completed);
+      return tasksByDate.reduce(
+        (acc, [, task]) => {
+          if (task.completed) acc.hasCompleted = true;
+          if (!task.completed) acc.hasIncompleted = true;
+          return acc;
+        },
+        { hasCompleted: false, hasIncompleted: false }
+      );
     },
   },
   mounted() {

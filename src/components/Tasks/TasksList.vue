@@ -6,13 +6,15 @@
           {{ tasksNumber }} task(-s) for this day
         </h2>
         <base-button class="tasks__header__new-task">
-          <router-link to="/add">New task</router-link>
+          <router-link :to="`/add/${selectedDay.toDateString()}`">
+            New task
+          </router-link>
         </base-button>
       </header>
       <ul class="tasks__task-list task-list">
         <li
           class="task-list__item"
-          v-for="(info, id, idx) in tasksByDate"
+          v-for="(info, id, idx) in getTasksByDayAsObject"
           :key="id"
         >
           <label
@@ -45,7 +47,9 @@
       <div class="tasks__header">
         <h2>No tasks for this day</h2>
         <base-button class="tasks__header__new-task">
-          <router-link to="/add">New task</router-link>
+          <router-link :to="`/add/${selectedDay.toDateString()}`">
+            New task
+          </router-link>
         </base-button>
       </div>
     </template>
@@ -70,24 +74,17 @@ export default {
       isTaskListLoading: "isTaskListLoading",
       tasksList: "userTasks",
     }),
-    ...mapGetters("taskModule", ["isTaskListEmpty"]),
+    ...mapGetters("taskModule", ["tasksByDate", "isTaskListEmpty"]),
 
-    tasksByDate() {
-      const selectedDay = this.selectedDay;
-
-      if (this.isTaskListEmpty) return {};
-
-      const filteredTasks = Object.entries(this.tasksList).filter(
-        ([, task]) => {
-          return selectedDay.toDateString() === task.creationDate;
-        }
-      );
-      console.log(Object.fromEntries(filteredTasks));
-      return Object.fromEntries(filteredTasks);
+    getTasksByDayAsObject() {
+      if (!this.tasksByDate || !this.tasksByDate(this.selectedDay)) return {};
+      return Object.fromEntries(this.tasksByDate(this.selectedDay));
     },
+
     tasksNumber() {
-      if (!this.tasksByDate) return;
-      return Object.keys(this.tasksByDate).length;
+      if (!this.getTasksByDayAsObject) return;
+
+      return Object.keys(this.getTasksByDayAsObject).length;
     },
   },
   methods: {
@@ -95,6 +92,7 @@ export default {
       updateTask: "updateTask",
       removeTask: "deleteTask",
     }),
+
     async changeTaskStatus(task) {
       task.info.completed = !task.info.completed;
       try {
@@ -104,6 +102,7 @@ export default {
         this.$toast.error("Cannot update task");
       }
     },
+
     async deleteTask(taskId) {
       try {
         await this.removeTask(taskId);

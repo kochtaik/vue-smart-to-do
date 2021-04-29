@@ -1,6 +1,6 @@
 <template>
   <section class="auth">
-    <template v-if="!isAuthenticationPending">
+    <template v-if="!isAuthPending">
       <h2 class="auth__title">{{ cardCaption }}</h2>
       <form @submit.prevent="submitInputData" class="auth__form form">
         <label for="email">Email</label>
@@ -38,16 +38,11 @@
         }}</router-link>
       </p>
     </template>
-    <pulse-loader
-      class="auth__loader"
-      :loading="isAuthenticationPending"
-    ></pulse-loader>
+    <pulse-loader class="auth__loader" :loading="isAuthPending"></pulse-loader>
   </section>
 </template>
 
 <script>
-import { mapState } from "vuex";
-
 export default {
   data() {
     return {
@@ -63,10 +58,14 @@ export default {
       type: String,
       required: true,
     },
+    isAuthPending: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 
   computed: {
-    ...mapState("authModule", ["isAuthenticationPending"]),
     oppositeAuthAction() {
       const authActionData = { link: "/sign-up", name: "Sign up" };
       if (this.cardCaption === "Sign up") {

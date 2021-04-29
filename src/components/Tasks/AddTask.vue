@@ -21,12 +21,13 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import { toValidHTMLDateFormat } from "../../utils/calendarHelpers";
 
 export default {
   data() {
     return {
       taskContent: "",
-      chosenDate: "",
+      chosenDate: toValidHTMLDateFormat(this.$route.params.date),
     };
   },
   methods: {
@@ -41,19 +42,16 @@ export default {
       const taskRecord = {
         user,
         info: {
-          creationDate: this.dateAsObject,
+          creationDate: new Date(this.chosenDate),
           taskContent: this.taskContent,
           completed: false,
         },
       };
       try {
         await this.putTaskToServer(taskRecord);
-        this.$toast.success(
-          `Task has been saved for ${this.dateAsObject.toDateString()}!`
-        );
+        this.$toast.success(`Task has been saved for ${this.chosenDate}!`);
       } catch (err) {
-        this.$toast.error("Something went wrong. Please, retry later");
-        console.log(err);
+        this.$toast.error(err.message);
       }
     },
     validateInput() {
@@ -66,9 +64,6 @@ export default {
   },
   computed: {
     ...mapState("authModule", ["currentUser"]),
-    dateAsObject() {
-      return this.chosenDate === "" ? new Date() : new Date(this.chosenDate);
-    },
   },
 };
 </script>

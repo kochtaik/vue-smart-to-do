@@ -1,6 +1,7 @@
 <template>
   <base-authentication
     cardCaption="Sign up"
+    :isAuthPending="isAuthPending"
     @submit-data="signUp"
   ></base-authentication>
 </template>
@@ -10,6 +11,11 @@ import { mapActions } from "vuex";
 import BaseAuthentication from "../../components/BaseAuthentication.vue";
 
 export default {
+  data() {
+    return {
+      isAuthPending: false,
+    };
+  },
   components: {
     BaseAuthentication,
   },
@@ -17,14 +23,13 @@ export default {
     ...mapActions("authModule", { createUser: "signUp" }),
 
     async signUp(inputData) {
+      this.isAuthPending = true;
       try {
         await this.createUser(inputData);
       } catch (err) {
-        console.error(err.message);
-        this.$toast.error(
-          "Something went wrong. Please, check your internet connection and retry"
-        );
+        this.$toast.error(err.message);
       }
+      this.isAuthPending = false;
     },
   },
 };

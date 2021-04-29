@@ -21,6 +21,8 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import { toValidHTMLDateFormat } from "../../utils/calendarHelpers";
+
 export default {
   methods: {
     ...mapActions("taskModule", ["updateTask"]),
@@ -34,15 +36,6 @@ export default {
         this.$toast.error("Cannot update task");
         console.error("Cannot update task:", error.message);
       }
-    },
-    handleTimezone(dateString) {
-      let taskCreationDate = new Date(dateString);
-      const offset = taskCreationDate.getTimezoneOffset();
-
-      taskCreationDate = new Date(
-        taskCreationDate.getTime() - offset * 60 * 1000
-      );
-      return taskCreationDate.toISOString().split("T")[0];
     },
   },
   computed: {
@@ -80,7 +73,7 @@ export default {
     validDateString: {
       get() {
         if (!this.taskById) return;
-        return this.handleTimezone(this.taskById.info.creationDate);
+        return toValidHTMLDateFormat(this.taskById.info.creationDate);
       },
       set(dateString) {
         this.taskById.info.creationDate = new Date(dateString).toDateString();

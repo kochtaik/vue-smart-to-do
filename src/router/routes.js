@@ -27,7 +27,7 @@ export const routes = [
     },
   },
   {
-    path: "/add",
+    path: "/add/:date",
     component: AddTask,
   },
   {

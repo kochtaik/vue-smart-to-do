@@ -12,7 +12,6 @@ const taskModule = {
       state.userTasks = tasks;
     },
     setLoadingStatus(state, status) {
-      console.log(state.isTaskListLoading);
       state.isTaskListLoading = status;
     },
   },
@@ -29,16 +28,12 @@ const taskModule = {
       context.commit("setLoadingStatus", true);
       try {
         const userRef = await context.dispatch("getUserRef");
+        if (!userRef) return;
         await userRef.child("tasks").on("value", (snapshot) => {
           const userTasks = snapshot.val();
 
           context.commit("setUserTasks", userTasks);
           context.commit("setLoadingStatus", false);
-
-          console.log(
-            "Data has been successfully fetched!",
-            context.state.userTasks
-          );
         });
       } catch (error) {
         console.error("Error while fetching data:", error);
@@ -47,6 +42,7 @@ const taskModule = {
 
     async getUserRef(context) {
       const user = context.rootState.authModule.currentUser;
+      if (!user) return;
       return await firebase.database().ref(`users/${user.uid}`);
     },
 
@@ -55,7 +51,6 @@ const taskModule = {
       const userRef = await context.dispatch("getUserRef");
 
       await userRef.child("tasks").child(id).set(info);
-      console.log(`task ${id} updated`);
     },
 
     async deleteTask(context, id) {
@@ -67,6 +62,15 @@ const taskModule = {
     isTaskListEmpty(state) {
       if (state.userTasks === null) return true;
       return Object.keys(state.userTasks).length === 0;
+    },
+
+    tasksByDate: (state) => (date) => {
+      const dateString = date.toDateString();
+      if (!state.userTasks) return;
+
+      return Object.entries(state.userTasks).filter(([, task]) => {
+        return task.creationDate === dateString;
+      });
     },
   },
 };

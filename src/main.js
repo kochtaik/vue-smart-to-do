@@ -15,7 +15,6 @@ initializeFirebase();
 
 let app;
 
-// TODO: REMOVE EXCESS LOGS
 store.dispatch("init").then(() => {
   if (!app) {
     app = createApp(App)

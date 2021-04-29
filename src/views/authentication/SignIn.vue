@@ -1,6 +1,7 @@
 <template>
   <base-authentication
     cardCaption="Sign in"
+    :isAuthPending="isAuthPending"
     @submit-data="signIn"
   ></base-authentication>
 </template>
@@ -13,17 +14,23 @@ export default {
   components: {
     BaseAuthentication,
   },
+  data() {
+    return {
+      isAuthPending: false,
+    };
+  },
   methods: {
     ...mapActions("authModule", { logIn: "signIn" }),
 
     async signIn(inputData) {
+      this.isAuthPending = true;
       try {
         await this.logIn(inputData);
       } catch (err) {
-        console.error(err.message);
-        this.$toast.error("This user doesn't exist");
+        this.$toast.error(err.message);
       }
+      this.isAuthPending = false;
     },
   },
-}
+};
 </script>
